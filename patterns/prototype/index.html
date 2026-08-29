@@ -1,0 +1,426 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Prototype Pattern — A Practical Guide</title>
+    <meta
+      name="description"
+      content="A practical guide to the Prototype design pattern with examples in JavaScript, TypeScript, Python, and Java."
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <span class="badge" aria-label="Design Pattern"
+          >Design Pattern • Creational</span
+        >
+        <h1 class="title">The Prototype Pattern</h1>
+        <p class="subtitle">
+          Create new objects by cloning configured prototypes instead of
+          rebuilding them from scratch. This keeps your code flexible, fast, and
+          independent from concrete classes.
+        </p>
+        <img
+          class="hero"
+          src="https://refactoring.guru/images/patterns/content/prototype/prototype-1.5x.png"
+          alt="Illustration of a prototype object being cloned into multiple copies."
+        />
+        <div class="toolbar">
+          <button class="btn">
+            <a class="clear-styles" href="../index.html">Back Home</a>
+          </button>
+          <button id="copyLink" class="btn" aria-label="Copy shareable link">
+            Copy Link
+          </button>
+          <button
+            id="toggleContrast"
+            class="btn ghost"
+            aria-label="Toggle high contrast"
+          >
+            Toggle Contrast
+          </button>
+        </div>
+
+        <article class="header-card">
+          <h2 class="section-title"><span class="emoji">😕</span> Problem</h2>
+          <p>
+            Instead of creating a new object from scratch, clone a ready-made
+            prototype with the same configuration and tweak only what differs.
+            This keeps object creation flexible and reduces duplicated setup.
+          </p>
+        </article>
+      </header>
+
+      <section class="grid">
+        <article class="card span-8">
+          <h2 class="section-title"><span class="emoji">💡</span> When to Use</h2>
+          <ul>
+            <li>
+              You need many similar objects with a large configuration set.
+            </li>
+            <li>
+              Creation logic is expensive, but cloning a ready-made object is
+              cheaper.
+            </li>
+            <li>Your code depends on interfaces, not concrete classes.</li>
+            <li>
+              You want to avoid a huge subclass tree for tiny configuration
+              differences.
+            </li>
+          </ul>
+          <div class="callout" role="note">
+            <strong>Warning:</strong> Prototype is great for object duplication,
+            but shallow cloning can accidentally share nested references. Be
+            careful with mutable child objects and cycles.
+          </div>
+        </article>
+
+        <aside class="card span-4">
+          <h2 class="section-title"><span class="emoji">✅</span> Checklist</h2>
+          <ul>
+            <li>Common clone interface or base class</li>
+            <li>Prototype object(s) with preconfigured state</li>
+            <li>Separate clone logic from construction</li>
+            <li>Correct handling of nested references</li>
+            <li>Registry for frequently reused templates</li>
+          </ul>
+        </aside>
+
+        <article class="card span-12">
+          <h2 class="section-title"><span class="emoji">🧩</span> UML Snapshot</h2>
+          <svg
+            class="diagram"
+            viewBox="0 0 820 180"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="UML diagram of Prototype"
+          >
+            <defs>
+              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.72" />
+                <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.72" />
+              </linearGradient>
+            </defs>
+
+            <rect
+              x="20"
+              y="24"
+              width="300"
+              height="130"
+              rx="12"
+              fill="url(#g)"
+              opacity="0.08"
+              stroke="currentColor"
+            />
+            <text x="170" y="48" text-anchor="middle" font-weight="600" fill="white">
+              Prototype
+            </text>
+            <line x1="20" y1="58" x2="320" y2="58" stroke="currentColor" />
+            <text x="30" y="82" fill="white">+ clone(): Prototype</text>
+            <line x1="20" y1="102" x2="320" y2="102" stroke="currentColor" />
+            <text x="30" y="128" fill="white">- state</text>
+
+            <rect
+              x="420"
+              y="24"
+              width="380"
+              height="130"
+              rx="12"
+              fill="url(#g)"
+              opacity="0.08"
+              stroke="currentColor"
+            />
+            <text x="610" y="48" text-anchor="middle" font-weight="600" fill="white">
+              Client
+            </text>
+            <line x1="420" y1="58" x2="800" y2="58" stroke="currentColor" />
+            <text x="430" y="82" fill="white">+ usePrototype(p: Prototype)</text>
+            <line x1="420" y1="102" x2="800" y2="102" stroke="currentColor" />
+
+            <defs>
+              <marker
+                id="arrow"
+                markerWidth="10"
+                markerHeight="10"
+                refX="6"
+                refY="3"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+              </marker>
+            </defs>
+            <line
+              x1="420"
+              y1="88"
+              x2="320"
+              y2="88"
+              stroke="currentColor"
+              marker-end="url(#arrow)"
+            />
+            <text x="335" y="82" font-size="15" fill="white">clone()</text>
+          </svg>
+        </article>
+
+        <article class="card span-12">
+          <h2 class="section-title"><span class="emoji">💻</span> Idiomatic Implementations</h2>
+          <div class="tabs" id="langTabs">
+            <div class="tablist" role="tablist" aria-label="Languages">
+              <button
+                class="tab"
+                role="tab"
+                aria-controls="tab-js"
+                data-tab="js"
+              >
+                JavaScript
+              </button>
+              <button
+                class="tab"
+                role="tab"
+                aria-controls="tab-ts"
+                data-tab="ts"
+              >
+                TypeScript
+              </button>
+              <button
+                class="tab"
+                role="tab"
+                aria-controls="tab-py"
+                data-tab="py"
+              >
+                Python
+              </button>
+              <button
+                class="tab"
+                role="tab"
+                aria-controls="tab-java"
+                data-tab="java"
+              >
+                Java
+              </button>
+            </div>
+
+            <section
+              class="tabpanel active"
+              id="tab-js"
+              role="tabpanel"
+              aria-labelledby="js"
+            >
+              <h3>JavaScript — shallow clone via prototype inheritance</h3>
+              <pre><code>class Shape {
+  constructor(color, size) {
+    this.color = color;
+    this.size = size;
+  }
+
+  clone() {
+    return Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    );
+  }
+}
+
+const redCircle = new Shape("red", 12);
+const clone = redCircle.clone();
+clone.color = "blue";
+</code></pre>
+            </section>
+
+            <section
+              class="tabpanel"
+              id="tab-ts"
+              role="tabpanel"
+              aria-labelledby="ts"
+            >
+              <h3>TypeScript — typed clone contract</h3>
+              <pre><code>interface Prototype&lt;T&gt; {
+  clone(): T;
+}
+
+class Circle implements Prototype&lt;Circle&gt; {
+  constructor(
+    public radius: number,
+    public color: string,
+    public x: number,
+    public y: number
+  ) {}
+
+  clone(): Circle {
+    return new Circle(this.radius, this.color, this.x, this.y);
+  }
+}
+
+const original = new Circle(10, "green", 0, 0);
+const copy = original.clone();
+</code></pre>
+            </section>
+
+            <section
+              class="tabpanel"
+              id="tab-py"
+              role="tabpanel"
+              aria-labelledby="py"
+            >
+              <h3>Python — copy.copy() or custom clone</h3>
+              <pre><code>import copy
+
+class Shape:
+    def __init__(self, color, size):
+        self.color = color
+        self.size = size
+
+    def clone(self):
+        return copy.copy(self)
+
+base = Shape("purple", 20)
+clone = base.clone()
+clone.color = "orange"
+</code></pre>
+            </section>
+
+            <section
+              class="tabpanel"
+              id="tab-java"
+              role="tabpanel"
+              aria-labelledby="java"
+            >
+              <h3>Java — clone() with protected override</h3>
+              <pre><code>public abstract class Shape implements Cloneable {
+  protected String color;
+
+  public Shape clone() {
+    try {
+      return (Shape) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError(e);
+    }
+  }
+}
+
+public final class Circle extends Shape {
+  private int radius;
+  public Circle clone() {
+    return (Circle) super.clone();
+  }
+}
+</code></pre>
+            </section>
+          </div>
+        </article>
+
+        <article class="card span-6">
+          <h2 class="section-title"><span class="emoji">⚖️</span> Pros &amp; Cons</h2>
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px">
+            <div>
+              <h3>✅ Benefits</h3>
+              <ul>
+                <li>Clones objects without coupling to classes</li>
+                <li>Reuses preconfigured prototypes</li>
+                <li>Removes repeated constructor setup</li>
+                <li>Works well with object graphs and presets</li>
+              </ul>
+            </div>
+            <div>
+              <h3>⚠️ Pitfalls</h3>
+              <ul>
+                <li>Shallow copies can share nested state</li>
+                <li>Complex circular references are tricky</li>
+                <li>May hide the true cost of cloning</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="card span-6">
+          <h2 class="section-title"><span class="emoji">🔄</span> Alternatives</h2>
+          <ul>
+            <li>
+              <strong>Factory Method</strong>: best when object creation is
+              simple and explicit.
+            </li>
+            <li>
+              <strong>Builder</strong>: useful for complex object assembly step
+              by step.
+            </li>
+            <li>
+              <strong>Dependency Injection</strong>: best when you want explicit
+              object configuration.
+            </li>
+          </ul>
+          <div class="pill-list" aria-label="Related">
+            <span class="pill">Factory</span>
+            <span class="pill">Builder</span>
+            <span class="pill">Factory Method</span>
+            <span class="pill">Flyweight</span>
+          </div>
+        </article>
+
+        <article class="card span-8">
+          <h2 class="section-title"><span class="emoji">🎮</span> Interactive Demo (JavaScript)</h2>
+          <p>
+            Each button clones a prebuilt prototype. The clone gets its own
+            object identity, but the same template config.
+          </p>
+          <div class="toolbar">
+            <button class="btn" id="cloneBlue">Clone Blue</button>
+            <button class="btn" id="cloneRed">Clone Red</button>
+            <button class="btn ghost" id="resetDemo">Reset</button>
+          </div>
+          <pre id="demoOutput"><code>registry = []
+</code></pre>
+        </article>
+
+        <aside class="card span-4">
+          <h2 class="section-title"><span class="emoji">🧪</span> Testing Tips</h2>
+          <ul>
+            <li>Assert clone independence for mutable fields.</li>
+            <li>Check whether nested structures are deep-copied or shared.</li>
+            <li>Use a registry to keep prototype configuration centralized.</li>
+          </ul>
+          <h3>Anti-Patterns</h3>
+          <ul>
+            <li>Using shallow clones for objects with shared references.</li>
+            <li>Overusing clone() for every object without real gains.</li>
+            <li>Mutating prototype instances in place.</li>
+          </ul>
+        </aside>
+
+        <article class="card span-12">
+          <h2 class="section-title"><span class="emoji">🛡️</span> Common Gotchas &amp; Hardening</h2>
+          <ul>
+            <li>
+              <strong>Shallow copy:</strong> duplicated top-level object, but
+              nested arrays/maps/objects remain shared.
+            </li>
+            <li>
+              <strong>Circular references:</strong> cloning graphs with cycles
+              requires specialized logic.
+            </li>
+            <li>
+              <strong>Serialization:</strong> some languages can clone by
+              serialization, but it is usually slow and brittle.
+            </li>
+            <li>
+              <strong>Thread safety:</strong> prototypes should be immutable or
+              treated as read-only templates.
+            </li>
+          </ul>
+        </article>
+      </section>
+
+      <footer>
+        <p>
+          © 2026 Prototype Pattern Guide. Built as a lightweight HTML page with
+          a practical demo and examples.
+        </p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
