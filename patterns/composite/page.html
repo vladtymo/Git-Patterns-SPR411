@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Pattern: Composite</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="hero">
+        <h1>Design Pattern: Composite</h1>
+        <p>Structural design pattern</p>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>What is it?</h2>
+            <p><strong>Composite (Composite)</strong> — is a structural design pattern that allows you to compose
+                objects into tree-like structures and then work with these structures as if they were individual
+                objects.</p>
+        </section>
+
+        <section class="card">
+            <h2>Pattern Structure</h2>
+            <ul class="features-list">
+                <li><strong>Component:</strong> Defines a common interface for both simple leaf objects and complex
+                    composite objects in the tree.</li>
+                <li><strong>Leaf:</strong> A simple tree element that has no child objects. It is the one that performs
+                    the main work.</li>
+                <li><strong>Composite:</strong> A complex element that contains child elements (leaves or other
+                    composites). It delegates work to its child elements.</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>When to use?</h2>
+            <p>This pattern is ideal when you need to implement a tree-like structure of objects. A classic example is a file system, where folders contain files and other folders. Thanks to the pattern, the program can handle both an individual file and a folder with hundreds of files in the same way.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created for learning design patterns</p>
+    </footer>
+</body>
+
+</html>
