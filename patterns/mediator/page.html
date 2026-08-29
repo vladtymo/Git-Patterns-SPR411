@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Mediator Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A practical guide to the Mediator design pattern with UML, C# examples, CQRS, MediatR, benefits, pitfalls and real-world examples." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Behavioral</span>
+            <h1 class="title">The Mediator Pattern</h1>
+            <p class="subtitle">Encapsulate communication between objects inside a mediator, reducing direct dependencies between components and keeping collaboration logic in one place.</p>
+            <div class="toolbar">
+                <button class="btn"><a class="clear-styles" href="../index.html">Back Home</a></button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+        </header>
+
+        <section class="grid">
+            <!-- ================= WHAT IS MEDIATOR ================= -->
+            <article class="card span-8">
+                <span class="kicker">Concept</span>
+                <h2>What is the Mediator Pattern?</h2>
+                <p>The <strong>Mediator</strong> is a behavioral design pattern that defines an object responsible for coordinating communication between a group of other objects.</p>
+                <p>Instead of allowing objects to communicate directly with each other, they communicate through a central <strong>Mediator</strong>.</p>
+                <div class="callout">
+                    <strong>Core idea:</strong> Objects should not know how other objects work. They only know about the mediator and communicate through it.
+                </div>
+            </article>
+            
+            <!-- ================= CHECKLIST ================= -->
+            <aside class="card span-4">
+                <h2>Structure</h2>
+                <ul>
+                    <li><strong>Mediator</strong> — defines communication</li>
+                    <li><strong>ConcreteMediator</strong> — coordinates objects</li>
+                    <li><strong>Colleagues</strong> — communicate through mediator</li>
+                    <li><strong>Client</strong> — creates and uses components</li>
+                </ul>
+            </aside>
+
+            <!-- ================= PROBLEM ================= -->
+            <article class="card span-12">
+                <span class="kicker">
+                    The Problem
+                </span>
+                <h2>
+                    Without a Mediator
+                </h2>
+                <p>
+                    Imagine a UI containing several components:
+                    a button, textbox, checkbox and list.
+                </p>
+                <p>If every component communicates directly with every other component, the number of dependencies grows quickly.</p>
+                <pre><code>Button
+↓
+TextBox
+↓
+Checkbox
+↓
+List
+↓
+Button
+↓
+TextBox</code></pre>
+                <p class="muted">This creates tightly coupled components. Changing one component may require changes in several others.</p>
+            </article>
+
+            <!-- ================= UML ================= -->
+            <article class="card span-12">
+                <span class="kicker">Architecture</span>
+                <h2>UML Snapshot</h2>
+                <svg class="diagram" viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML diagram of Mediator Pattern">
+                    <defs>
+                        <linearGradient id="mediatorGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+
+
+                    <!-- Mediator -->
+                    <rect x="300" y="30" width="300" height="90" rx="12" fill="url(#mediatorGradient)" opacity="0.12" stroke="currentColor" />
+                    <text x="450" y="55" text-anchor="middle" font-weight="600">Mediator</text>
+                    <line x1="300" y1="70" x2="600" y2="70" stroke="currentColor" />
+                    <text x="315" y="95">+ notify(sender, event)</text>
+
+
+                    <!-- Concrete Mediator -->
+                    <rect x="300" y="180" width="300" height="100" rx="12" fill="url(#mediatorGradient)" opacity="0.08" stroke="currentColor" />
+                    <text x="450" y="205" text-anchor="middle" font-weight="600">ConcreteMediator</text>
+                    <line x1="300" y1="220" x2="600" y2="220" stroke="currentColor" />
+                    <text x="315" y="245">+ coordinate()</text>
+                    <text x="315" y="265">- componentA</text>
+
+
+                    <!-- Component A -->
+                    <rect x="20" y="190" width="190" height="70" rx="12" fill="none" stroke="currentColor" />
+                    <text x="115" y="218" text-anchor="middle" font-weight="600">Component A</text>
+                    <text x="115" y="242" text-anchor="middle">Colleague</text>
+
+
+                    <!-- Component B -->
+                    <rect x="690" y="190" width="190" height="70" rx="12" fill="none" stroke="currentColor" />
+                    <text x="785" y="218" text-anchor="middle" font-weight="600">Component B</text>
+                    <text x="785" y="242" text-anchor="middle">Colleague</text>
+
+
+                    <!-- arrows -->
+                    <line x1="210" y1="225" x2="300" y2="225" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="690" y1="225" x2="600" y2="225" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="450" y1="180" x2="450" y2="120" stroke="currentColor" marker-end="url(#arrow)" />
+                </svg>
+                <p class="muted">Components communicate with the mediator instead of maintaining direct references to each other.</p>
+
+            </article>
+
+
+            <!-- ================= HOW IT WORKS ================= -->
+            <article class="card span-6">
+                <h2>How It Works</h2>
+                <ol>
+                    <li>A component receives an event or request.</li>
+                    <li>The component sends the information to the mediator.</li>
+                    <li>The mediator decides which components should react.</li>
+                    <li>The mediator coordinates the operation.</li>
+                </ol>
+
+                <pre><code>Component
+│
+▼
+Mediator
+│
+├──► Component A
+├──► Component B
+└──► Component C</code></pre>
+            </article>
+
+
+            <!-- ================= WHEN TO USE ================= -->
+            <article class="card span-6">
+                <h2>When to Use</h2>
+                <ul>
+                    <li>Many objects communicate with each other.</li>
+                    <li>Components become tightly coupled.</li>
+                    <li>Communication logic is scattered across classes.</li>
+                    <li>You want to centralize coordination.</li>
+                    <li>You need a clean request/response pipeline.</li>
+                </ul>
+                <div class="callout">
+                    <strong>Good signal:</strong> If changing one component requires modifying many other components, a mediator may help.
+                </div>
+
+            </article>
+
+
+            <!-- ================= C# IMPLEMENTATION ================= -->
+            <article class="card span-12">
+                <span class="kicker">Implementation</span>
+                <h2>C# — Classic Mediator</h2>
+                <div class="tabs" id="codeTabs">
+                    <div class="tablist" role="tablist" aria-label="Implementation examples">
+                        <button class="tab" role="tab" data-tab="classic">Classic</button>
+                        <button class="tab" role="tab" data-tab="modern">Modern C#</button>
+                        <button class="tab" role="tab" data-tab="mediatR">MediatR</button>
+                    </div>
+
+
+                    <!-- CLASSIC -->
+                    <section class="tabpanel" id="tab-classic" role="tabpanel">
+                        <h3>Basic Mediator</h3>
+                        <pre><code>public interface IMediator
+{
+    void Notify(object sender, string eventName);
+}
+
+public class ConcreteMediator : IMediator
+{
+    public ComponentA ComponentA { get; set; }
+    public ComponentB ComponentB { get; set; }
+
+    public void Notify(object sender, string eventName)
+    {
+        if (eventName == "A")
+        {
+            ComponentB.DoSomething();
+        }
+        if (eventName == "B")
+        {
+            ComponentA.DoSomething();
+        }
+    }
+}
+
+public class ComponentA
+{
+    private readonly IMediator _mediator;
+
+    public ComponentA(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    public void DoSomething()
+    {
+        Console.WriteLine("Component A works");
+        _mediator.Notify(this, "A");
+    }
+}
+
+public class ComponentB
+{
+    private readonly IMediator _mediator;
+
+    public ComponentB(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    public void DoSomething()
+    {
+        Console.WriteLine("Component B works");
+        _mediator.Notify(this, "B");
+    }
+}</code></pre>
+                    </section>
+
+
+                    <!-- MODERN -->
+                    <section class="tabpanel" id="tab-modern" role="tabpanel">
+                        <h3>Request / Handler Style</h3>
+                        <pre><code>public interface IRequest&lt;TResponse&gt;
+{
+}
+
+public interface IRequestHandler&lt;TRequest, TResponse&gt;
+{
+    Task&lt;TResponse&gt; Handle(
+        TRequest request,
+        CancellationToken cancellationToken);
+}
+
+public record GetPatientQuery(Guid PatientId)
+    : IRequest&lt;PatientDto&gt;;
+
+public class GetPatientHandler
+    : IRequestHandler&lt;GetPatientQuery, PatientDto&gt;
+{
+    public async Task&lt;PatientDto&gt; Handle(
+        GetPatientQuery request,
+        CancellationToken cancellationToken)
+    {
+        // Load patient
+        // Map to DTO
+        return new PatientDto();
+    }
+}</code></pre>
+                        <p class="muted">This approach is common in modern .NET applications where a mediator dispatches requests to their corresponding handlers.</p>
+
+                    </section>
+
+
+                    <!-- MEDIATR -->
+                    <section class="tabpanel" id="tab-mediatR" role="tabpanel">
+                        <h3>MediatR Example</h3>
+                        <pre><code>public record GetPatientQuery(Guid PatientId)
+    : IRequest&lt;PatientDto&gt;;
+```
+
+public class GetPatientQueryHandler
+: IRequestHandler<GetPatientQuery, PatientDto>
+{
+public async Task<PatientDto> Handle(
+GetPatientQuery request,
+CancellationToken cancellationToken)
+{
+var patient = await repository
+.GetByIdAsync(request.PatientId);
+
+```
+    return PatientDto.From(patient);
+}
+```
+
+}</code></pre>
+
+                        ```
+                        <p class="muted">
+
+                            The controller does not need to know which service
+                            or handler performs the operation. It sends the
+                            request to the mediator.
+
+                        </p>
+
+                        <pre><code>Controller
+ │
+ │ Send(request)
+ ▼
+```
+
+IMediator
+│
+▼
+RequestHandler
+│
+▼
+Application / Domain </code></pre>
+
+                        ```
+                    </section>
+
+                </div>
+
+            </article>
+
+
+            <!-- ================= CQRS ================= -->
+            <article class="card span-8">
+                <span class="kicker">.NET Architecture</span>
+                <h2>Mediator + CQRS</h2>
+                <p>Mediator is frequently used together with <strong>CQRS</strong>.</p>
+                <p>Instead of controllers directly calling application services, they send commands and queries through a mediator.</p>
+                <pre><code>HTTP Request
+ │
+ ▼
+Controller
+│
+│ Send()
+▼
+Mediator
+│
+├───────────────┐
+▼               ▼
+CommandHandler   QueryHandler
+│               │
+▼               ▼
+Domain          Read Model</code></pre>
+            </article>
+
+
+            <!-- ================= MINDCARE ================= -->
+            <aside class="card span-4">
+                <span class="kicker">Example</span>
+                <h2>MindCare</h2>
+                <p>A patient request can be represented as a command or query.</p>
+                <pre><code>CreateAppointmentCommand
+    │
+    ▼
+ Mediator
+    │
+    ▼
+CreateAppointmentHandler
+│
+▼
+Appointment</code></pre>
+                <div class="pill-list">
+                    <span class="pill">CQRS</span>
+                    <span class="pill">MediatR</span>
+                    <span class="pill">Vertical Slice</span>
+                    <span class="pill">Clean Architecture</span>
+                </div>
+
+            </aside>
+
+
+            <!-- ================= PROS CONS ================= -->
+            <article class="card span-6">
+                <h2>Benefits</h2>
+                <ul>
+                    <li>Reduces coupling between components.</li>
+                    <li>Centralizes communication logic.</li>
+                    <li>Makes components easier to change.</li>
+                    <li>Improves separation of responsibilities.</li>
+                    <li>Works well with CQRS.</li>
+                    <li>Makes request pipelines easier to extend.</li>
+                </ul>
+            </article>
+            <article class="card span-6">
+                <h2>Pitfalls</h2>
+                <ul>
+                    <li>The mediator can become a "god object".</li>
+                    <li>Too much logic may accumulate in handlers.</li>
+                    <li>Simple communication may become unnecessarily complex.</li>
+                    <li>Debugging indirect communication can be harder.</li>
+                    <li>A mediator library does not automatically create good architecture.</li>
+                </ul>
+            </article>
+
+
+            <!-- ================= BEFORE AFTER ================= -->
+            <article class="card span-12">
+                <h2>Before vs After</h2>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 18px;">
+                    <div>
+                        <h3>❌ Direct Communication</h3>
+                        <pre><code>Controller
+│
+├──► PatientService
+├──► AppointmentService
+├──► PaymentService
+└──► NotificationService</code></pre>
+                        <p class="muted">The controller knows about many application components.</p>
+                    </div>
+                    <div>
+                        <h3>✅ Mediator</h3>
+                        <pre><code>Controller
+│
+▼
+Mediator
+│
+▼
+CommandHandler
+│
+├──► Repository
+├──► Domain
+└──► Notification</code></pre>
+                        <p class="muted">The controller only knows how to send a request.</p>
+                    </div>
+                </div>
+
+            </article>
+
+
+            <!-- ================= REAL WORLD DEMO ================= -->
+            <article class="card span-8">
+                <h2>Interactive Demo</h2>
+                <p>The buttons below simulate components communicating through a mediator. The components do not call each other directly.</p>
+                <div class="toolbar">
+                    <button class="btn" id="patientBtn">Patient Updated</button>
+                    <button class="btn" id="appointmentBtn">Appointment Created</button>
+                    <button class="btn ghost" id="clearLog">Clear</button>
+                </div>
+                <pre id="demoLog"><code>Mediator ready...</code></pre>
+            </article>
+            <!-- ================= TESTING ================= -->
+            <aside class="card span-4">
+                <h2>Testing Tips</h2>
+                <ul>
+                    <li>Test handlers independently.</li>
+                    <li>Mock repositories and external services.</li>
+                    <li>Keep handlers focused on one use case.</li>
+                    <li>Test mediator behavior only where coordination actually exists.</li>
+                </ul>
+                <h3>Good Handler</h3>
+                <pre><code>Handle()
+{
+    validate();
+    load();
+    execute();
+    return result;
+}</code></pre>
+            </aside>
+
+
+            <!-- ================= MEDIATOR VS SERVICE ================= -->
+            <article class="card span-12">
+                <h2>Mediator vs Service</h2>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 18px;">
+                    <div>
+                        <h3>Application Service</h3>
+                        <ul>
+                            <li>Groups related application operations.</li>
+                            <li>Often exposes multiple methods.</li>
+                            <li>Can become large over time.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Mediator + Handlers</h3>
+                        <ul>
+                            <li>One request represents one use case.</li>
+                            <li>Each handler has a focused responsibility.</li>
+                            <li>Works naturally with CQRS.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+
+            <!-- ================= RELATED ================= -->
+            <article class="card span-12">
+                <h2>Related Patterns & Concepts</h2>
+                <div class="pill-list">
+                    <span class="pill">CQRS</span>
+                    <span class="pill">Command</span>
+                    <span class="pill">Observer</span>
+                    <span class="pill">Facade</span>
+                    <span class="pill">Dependency Injection</span>
+                    <span class="pill">Clean Architecture</span>
+                    <span class="pill">Vertical Slice Architecture</span>
+                    <span class="pill">Pipeline Behavior</span>
+                </div>
+            </article>
+
+
+            <!-- ================= SUMMARY ================= -->
+            <article class="card span-12">
+                <span class="kicker">Summary</span>
+                <h2>The Big Picture</h2>
+                <pre><code>                    ┌───────────────────┐
+                │     Mediator      │
+                │                   │
+                │  Coordinates      │
+                │  communication    │
+                └─────────┬─────────┘
+                          │
+         ┌────────────────┼────────────────┐
+         │                │                │
+         ▼                ▼                ▼
+   Component A       Component B       Component C
+
+In modern .NET:
+
+Controller
+│
+▼
+IMediator
+│
+▼
+Command / Query
+│
+▼
+Handler
+│
+▼
+Application / Domain</code></pre>
+                <div class="callout">
+                    <strong>Remember:</strong> The Mediator pattern is not about making everything go through one class. Its purpose is to reduce unnecessary direct dependencies and encapsulate collaboration.
+                </div>
+            </article>
+
+
+        </section>
+        <!-- ================= FOOTER ================= -->
+        <footer>
+            <p>© 2026 Mediator Pattern Guide. Built as a single HTML file.</p>
+        </footer>
+    </div>
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        /* ================= COPY LINK ================= */
+        document
+            .getElementById("copyLink")
+            .addEventListener("click", async () => {
+                try {
+                    await navigator.clipboard.writeText(location.href);
+                    const btn = document.getElementById("copyLink");
+                    const old = btn.textContent;
+                    btn.textContent = "Copied!";
+                    setTimeout(() => btn.textContent = old, 1200);
+
+                } catch { }
+            });
+        /* ================= CONTRAST ================= */
+        const toggleBtn = document.getElementById("toggleContrast");
+
+        let high = false;
+        toggleBtn.addEventListener("click", () => {
+            high = !high;
+            document.documentElement.style.setProperty("--bg", high ? "#05070f" : "");
+            document.documentElement.style.setProperty("--card", high ? "#0a0f22" : "");
+            document.documentElement.style.setProperty("--card-2", high ? "#0b1020" : "");
+            document.documentElement.style.setProperty("--text", high ? "#f2f6ff" : "");
+            document.documentElement.style.setProperty("--border", high ? "#243463" : "");
+        });
+        /* ================= TABS ================= */
+        const tabsRoot = document.getElementById("codeTabs");
+        const tabs = Array.from(tabsRoot.querySelectorAll(".tab"));
+        const panels = Array.from(tabsRoot.querySelectorAll(".tabpanel"));
+        function activate(id) {
+            tabs.forEach(tab => tab.dataset.active = tab.dataset.tab === id);
+            panels.forEach(panel => panel.classList.toggle("active", panel.id === "tab-" + id));
+        }
+        tabs.forEach(tab => tab.addEventListener("click", () => activate(tab.dataset.tab)));
+        activate("classic");
+        /* ================= MEDIATOR DEMO ================= */
+        const log = document.getElementById("demoLog");
+        function writeLog(message) {
+            log.textContent += "\n" + message;
+        }
+        const Mediator = {
+            notify(sender, event) {
+                if (event === "patient.updated") {
+                    writeLog("[Mediator] Patient updated");
+                    writeLog("→ Notification component triggered");
+                    writeLog("→ Medical record component refreshed");
+                }
+                if (event === "appointment.created") {
+                    writeLog("[Mediator] Appointment created");
+                    writeLog("→ Payment component notified");
+                    writeLog("→ Notification component triggered");
+                }
+            }
+        };
+        document.getElementById("patientBtn").addEventListener("click", () => {
+            writeLog("[Patient Component] update()");
+            Mediator.notify("Patient", "patient.updated");
+        });
+        document.getElementById("appointmentBtn").addEventListener("click", () => {
+            writeLog("[Appointment Component] create()");
+            Mediator.notify("Appointment", "appointment.created");
+        });
+        document.getElementById("clearLog").addEventListener("click", () => {
+            log.textContent = "Mediator ready...";
+        });
+    </script>
+</body>
+</html>
