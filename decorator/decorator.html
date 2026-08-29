@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Decorator Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A practical guide to the Decorator design pattern with examples in Java, C#, JavaScript, and Python." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Structural</span>
+            <h1 class="title">The Decorator pattern</h1>
+            <p class="subtitle">Add behavior to objects dynamically without changing their class or forcing a large
+                inheritance hierarchy. Below are practical examples, gotchas, and modern alternatives.</p>
+            <div class="toolbar">
+                <button class="btn">
+                    <a class="clear-styles" href="../index.html">Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+
+        </header>
+
+        <section class="hero-gallery single-image">
+            <div class="hero-visual">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq0D2T4y0lJ6Hg7aVC8SkwKrbnHxo2TXv8YMZRlil1DA&s"
+                    alt="Coffee cup illustration" />
+            </div>
+        </section>
+
+        <article class="card span-12 coffee-story">
+            <h2>Real coffee example</h2>
+            <p>Think of a plain espresso as the base object. A <strong>milk decorator</strong> adds milk, a
+                <strong>vanilla decorator</strong> adds vanilla, and a <strong>whipped cream decorator</strong> adds a top
+                layer. Each decorator keeps the same coffee interface while changing the final price and description.</p>
+            <p>This is exactly how the Decorator pattern works: it stacks behavior around an object instead of creating a
+                new subclass for every possible combination.</p>
+        </article>
+
+        <section class="grid">
+            <article class="card span-8">
+                <h2>When to Use</h2>
+                <ul>
+                    <li>You need to add responsibilities to an object dynamically at runtime.</li>
+                    <li>You want to extend behavior without changing the original class or creating a large inheritance
+                        tree.</li>
+                    <li>You need transparent composition such as logging, caching, validation, or metrics.</li>
+                </ul>
+                <div class="callout" role="note">
+                    <strong>Rule of thumb:</strong> Use the Decorator pattern when the behavior should be stacked in layers,
+                    not hard-coded into a single subclass.
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Checklist</h2>
+                <ul>
+                    <li>Shared <span class="kbd">Component</span> interface or base class</li>
+                    <li>Concrete implementation with core behavior</li>
+                    <li>Decorator wrapper with same interface</li>
+                    <li>Concrete decorators that add features</li>
+                    <li>Composition, not inheritance, as the extension mechanism</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>UML Snapshot</h2>
+                <svg class="diagram" viewBox="0 0 860 180" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Decorator">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                    </defs>
+
+                    <rect x="20" y="20" width="220" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="130" y="42" text-anchor="middle" font-weight="600">Component</text>
+                    <line x1="20" y1="55" x2="240" y2="55" stroke="currentColor" />
+                    <text x="30" y="78">+ operation(): void</text>
+                    <line x1="20" y1="100" x2="240" y2="100" stroke="currentColor" />
+
+                    <rect x="310" y="20" width="220" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="420" y="42" text-anchor="middle" font-weight="600">ConcreteComponent</text>
+                    <line x1="310" y1="55" x2="530" y2="55" stroke="currentColor" />
+                    <text x="320" y="78">+ operation(): void</text>
+                    <line x1="310" y1="100" x2="530" y2="100" stroke="currentColor" />
+
+                    <rect x="600" y="20" width="220" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="710" y="42" text-anchor="middle" font-weight="600">Decorator</text>
+                    <line x1="600" y1="55" x2="820" y2="55" stroke="currentColor" />
+                    <text x="610" y="78">- wrapped: Component</text>
+                    <text x="610" y="98">+ operation(): void</text>
+                    <line x1="600" y1="110" x2="820" y2="110" stroke="currentColor" />
+
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+                    <line x1="240" y1="80" x2="310" y2="80" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="600" y1="80" x2="530" y2="80" stroke="currentColor" marker-end="url(#arrow)" />
+                </svg>
+            </article>
+
+            <article class="card span-12">
+                <h2>Idiomatic Implementations</h2>
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <section class="tabpanel" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java — Base component + decorator wrapper</h3>
+                        <pre><code>interface Coffee {
+  double cost();
+  String description();
+}
+
+class Espresso implements Coffee {
+  public double cost() { return 2.00; }
+  public String description() { return "Espresso"; }
+}
+
+abstract class CoffeeDecorator implements Coffee {
+  protected Coffee inner;
+  CoffeeDecorator(Coffee inner) { this.inner = inner; }
+}
+
+class MilkDecorator extends CoffeeDecorator {
+  MilkDecorator(Coffee inner) { super(inner); }
+  public double cost() { return inner.cost() + 0.50; }
+  public String description() { return inner.description() + ", milk"; }
+}
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# — Virtual methods with composition</h3>
+                        <pre><code>public interface ICoffee {
+  double Cost { get; }
+  string Description { get; }
+}
+
+public class Espresso : ICoffee {
+  public double Cost =&gt; 2.00;
+  public string Description =&gt; "Espresso";
+}
+
+public abstract class CoffeeDecorator : ICoffee {
+  protected readonly ICoffee Inner;
+  protected CoffeeDecorator(ICoffee inner) => Inner = inner;
+  public abstract double Cost { get; }
+  public abstract string Description { get; }
+}
+
+public class MilkDecorator : CoffeeDecorator {
+  public MilkDecorator(ICoffee inner) : base(inner) { }
+  public override double Cost =&gt; Inner.Cost + 0.50;
+  public override string Description =&gt; $"{Inner.Description}, milk";
+}
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript — Wrap an object and delegate calls</h3>
+                        <pre><code>class Coffee {
+  getDescription() { return "Espresso"; }
+  cost() { return 2; }
+}
+
+class MilkDecorator {
+  constructor(coffee) { this.coffee = coffee; }
+  getDescription() { return `${this.coffee.getDescription()}, milk`; }
+  cost() { return this.coffee.cost() + 0.5; }
+}
+
+const order = new MilkDecorator(new Coffee());
+console.log(order.getDescription(), order.cost());
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python — Functional-style wrappers</h3>
+                        <pre><code>class Coffee:
+    def description(self):
+        return "Espresso"
+    def cost(self):
+        return 2.0
+
+class MilkDecorator:
+    def __init__(self, coffee):
+        self._coffee = coffee
+    def description(self):
+        return f"{self._coffee.description()}, milk"
+    def cost(self):
+        return self._coffee.cost() + 0.5
+
+order = MilkDecorator(Coffee())
+print(order.description(), order.cost())
+</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <article class="card span-6">
+                <h2>Pros & Cons</h2>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <h3>✅ Benefits</h3>
+                        <ul>
+                            <li>Extends behavior without subclass explosion</li>
+                            <li>Composable and easy to layer</li>
+                            <li>Open for extension, closed for modification</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>⚠️ Pitfalls</h3>
+                        <ul>
+                            <li>Can add many small wrapper objects</li>
+                            <li>Debugging may be harder with stacked decorators</li>
+                            <li>Not ideal for stateful or highly coupled features</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card span-6">
+                <h2>Alternatives</h2>
+                <ul>
+                    <li><strong>Inheritance</strong>: works for a small fixed set of behaviors, but becomes rigid.</li>
+                    <li><strong>Composition</strong>: often simpler when behavior is assembled from independent services.</li>
+                    <li><strong>Strategy Pattern</strong>: good when changing algorithms, not object responsibilities.</li>
+                </ul>
+                <div class="pill-list" aria-label="Related">
+                    <span class="pill">Open/Closed</span>
+                    <span class="pill">Composition</span>
+                    <span class="pill">Adapter</span>
+                    <span class="pill">Proxy</span>
+                </div>
+            </article>
+
+            <article class="card span-8">
+                <h2>Real‑World Demo (JS)</h2>
+                <p>This example adds toppings to a coffee order by wrapping the same base object with decorators.
+                    Every layer keeps the same interface but changes the final behavior.</p>
+
+                <div class="toolbar">
+                    <button class="btn" id="coffeeToggle">Coffee</button>
+                    <button class="btn" id="addMilk">Milk</button>
+                    <button class="btn" id="addVanilla">Vanilla</button>
+                    <button class="btn" id="addWhipped">Whipped Cream</button>
+                    <button class="btn ghost" id="reset">Reset</button>
+                </div>
+
+                <div class="toolbar" id="coffeeChoice" style="display: none; margin-top: 12px;">
+                    <button class="btn" id="chooseEspresso">Espresso</button>
+                    <button class="btn" id="chooseAmericano">Americano</button>
+                    <button class="btn" id="chooseMilkshake">Milkshake</button>
+                </div>
+
+                <div class="toolbar" id="milkChoice" style="display: none; margin-top: 12px;">
+                    <button class="btn" id="milkRegular">Regular Milk</button>
+                    <button class="btn" id="milkCoconut">Coconut Milk</button>
+                </div>
+
+                <pre id="log"><code>Order: Espresso
+Total: $2.50
+</code></pre>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Testing Tips</h2>
+                <ul>
+                    <li>Assert the final behavior of the wrapped object, not the wrapper internals.</li>
+                    <li>Keep decorators thin and focused on one responsibility.</li>
+                    <li>Test order of decoration so composition remains predictable.</li>
+                </ul>
+                <h3>Anti‑Patterns</h3>
+                <ul>
+                    <li>Decorating a class without a common interface.</li>
+                    <li>Mutating shared state inside multiple wrappers.</li>
+                    <li>Using decorators to hide unrelated business logic.</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>Common Gotchas & Hardening</h2>
+                <ul>
+                    <li><strong>Keep the protocol consistent:</strong> every decorator must expose the same interface as the
+                        component it wraps.</li>
+                    <li><strong>Order matters:</strong> adding milk before vanilla can change the description and total.</li>
+                    <li><strong>Beware of side effects:</strong> decorators can stack expensive logging or validation layers.</li>
+                    <li><strong>Prefer composition over deep inheritance:</strong> this keeps responsibilities isolated and
+                        easier to test.</li>
+                </ul>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2026 Singleton Pattern Guide. Built as a single HTML file. Toggle high‑contrast for better projection
+                on a beamer.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Link copier
+        document.getElementById('copyLink').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(location.href);
+                const btn = document.getElementById('copyLink');
+                const old = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = old, 1200);
+            } catch { }
+        });
+
+        // Contrast toggle (temporary CSS override)
+        const toggleBtn = document.getElementById('toggleContrast');
+        let high = false;
+        toggleBtn.addEventListener('click', () => {
+            high = !high;
+            document.documentElement.style.setProperty('--bg', high ? '#05070f' : '');
+            document.documentElement.style.setProperty('--card', high ? '#0a0f22' : '');
+            document.documentElement.style.setProperty('--card-2', high ? '#0b1020' : '');
+            document.documentElement.style.setProperty('--text', high ? '#f2f6ff' : '');
+            document.documentElement.style.setProperty('--border', high ? '#243463' : '');
+        });
+
+        // Tabs logic
+        const tabsRoot = document.getElementById('langTabs');
+        const tabs = Array.from(tabsRoot.querySelectorAll('.tab'));
+        const panels = Array.from(tabsRoot.querySelectorAll('.tabpanel'));
+        function activate(id) {
+            tabs.forEach(t => t.dataset.active = (t.dataset.tab === id));
+            panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+        }
+        tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+        activate('java');
+
+        // Decorator demo: wrap a base coffee object with additional behavior
+        class Coffee {
+            constructor(name, price) {
+                this.name = name;
+                this.basePrice = price;
+            }
+            getDescription() { return this.name; }
+            getItems() { return [this.name]; }
+            cost() { return this.basePrice; }
+        }
+
+        class RegularMilkDecorator {
+            constructor(coffee) {
+                this.coffee = coffee;
+            }
+            getDescription() { return `${this.coffee.getDescription()}, regular milk`; }
+            getItems() { return [...this.coffee.getItems(), 'regular milk']; }
+            cost() { return this.coffee.cost() + 0.5; }
+        }
+
+        class CoconutMilkDecorator {
+            constructor(coffee) {
+                this.coffee = coffee;
+            }
+            getDescription() { return `${this.coffee.getDescription()}, coconut milk`; }
+            getItems() { return [...this.coffee.getItems(), 'coconut milk']; }
+            cost() { return this.coffee.cost() + 0.9; }
+        }
+
+        class VanillaDecorator {
+            constructor(coffee) {
+                this.coffee = coffee;
+            }
+            getDescription() { return `${this.coffee.getDescription()}, vanilla`; }
+            getItems() { return [...this.coffee.getItems(), 'vanilla']; }
+            cost() { return this.coffee.cost() + 0.75; }
+        }
+
+        class WhippedCreamDecorator {
+            constructor(coffee) {
+                this.coffee = coffee;
+            }
+            getDescription() { return `${this.coffee.getDescription()}, whipped cream`; }
+            getItems() { return [...this.coffee.getItems(), 'whipped cream']; }
+            cost() { return this.coffee.cost() + 0.5; }
+        }
+
+        const log = document.getElementById('log');
+        const coffeeChoice = document.getElementById('coffeeChoice');
+        const milkChoice = document.getElementById('milkChoice');
+        let order = new Coffee('Espresso', 1.55);
+
+        function toggleGroup(open, ...groups) {
+            groups.forEach(group => {
+                group.style.display = group === open ? 'flex' : 'none';
+            });
+        }
+
+        function render() {
+            const items = order.getItems().map((item, index) => `${index + 1}. ${item}`).join('\n');
+            log.textContent = `Order:\n${items}\n\nTotal: $${order.cost().toFixed(2)}\n`;
+        }
+
+        document.getElementById('coffeeToggle').addEventListener('click', () => {
+            toggleGroup(coffeeChoice, coffeeChoice, milkChoice);
+        });
+
+        document.getElementById('chooseEspresso').addEventListener('click', () => {
+            order = new Coffee('Espresso', 1.55);
+            coffeeChoice.style.display = 'none';
+            render();
+        });
+
+        document.getElementById('chooseAmericano').addEventListener('click', () => {
+            order = new Coffee('Americano', 2.0);
+            coffeeChoice.style.display = 'none';
+            render();
+        });
+
+        document.getElementById('chooseMilkshake').addEventListener('click', () => {
+            order = new Coffee('Milkshake', 3.3);
+            coffeeChoice.style.display = 'none';
+            render();
+        });
+
+        document.getElementById('addMilk').addEventListener('click', () => {
+            toggleGroup(milkChoice, coffeeChoice, milkChoice);
+        });
+
+        document.getElementById('milkRegular').addEventListener('click', () => {
+            order = new RegularMilkDecorator(order);
+            milkChoice.style.display = 'none';
+            render();
+        });
+
+        document.getElementById('milkCoconut').addEventListener('click', () => {
+            order = new CoconutMilkDecorator(order);
+            milkChoice.style.display = 'none';
+            render();
+        });
+
+        document.getElementById('addVanilla').addEventListener('click', () => {
+            order = new VanillaDecorator(order);
+            render();
+        });
+
+        document.getElementById('addWhipped').addEventListener('click', () => {
+            order = new WhippedCreamDecorator(order);
+            render();
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            order = new Coffee('Espresso', 1.55);
+            coffeeChoice.style.display = 'none';
+            milkChoice.style.display = 'none';
+            render();
+        });
+
+        render();
+    </script>
+</body>
+
+</html>
