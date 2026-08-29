@@ -31,7 +31,7 @@
         />
         <div class="toolbar">
           <button class="btn">
-            <a class="clear-styles" href="../index.html">Back Home</a>
+            <a class="clear-styles" href="../../../index.html">Back Home</a>
           </button>
           <button id="copyLink" class="btn" aria-label="Copy shareable link">
             Copy Link
@@ -46,18 +46,45 @@
         </div>
 
         <article class="header-card">
-          <h2 class="section-title"><span class="emoji">😕</span> Problem</h2>
+          <h2 class="section-title">
+            <i class="fa-solid fa-face-frown"></i> Problem
+          </h2>
           <p>
-            Instead of creating a new object from scratch, clone a ready-made
-            prototype with the same configuration and tweak only what differs.
-            This keeps object creation flexible and reduces duplicated setup.
+            Say you have an object, and you want to create an exact copy of it.
+            How would you do it? First, you have to create a new object of the
+            same class. Then you have to go through all the fields of the
+            original object and copy their values over to the new object. Nice!
+            But there’s a catch. Not all objects can be copied that way because
+            some of the object’s fields may be private and not visible from
+            outside of the object itself.
           </p>
+          <img
+            class="center"
+            style="max-width: 100%; max-height: 400px; justify-self: center"
+            src="https://refactoring.guru/images/patterns/content/prototype/prototype-comic-1-en.png"
+            alt="Illustration of a prototype object being cloned into multiple copies."
+          />
+        <br />
+       
+          <h2 class="section-title">
+            <i class="fa fa-smile-beam"></i> Solution
+          </h2>
+          <p>
+           The Prototype pattern delegates the cloning process to the actual objects that are being cloned. The pattern declares a common interface for all objects that support cloning. This interface lets you clone an object without coupling your code to the class of that object. Usually, such an interface contains just a single clone method.
+           The implementation of the clone method is very similar in all classes. The method creates an object of the current class and carries over all of the field values of the old object into the new one. You can even copy private fields because most programming languages let objects access private fields of other objects that belong to the same class.
+           An object that supports cloning is called a prototype. When your objects have dozens of fields and hundreds of possible configurations, cloning them might serve as an alternative to subclassing.
+          </p>
+          <img
+            class="center"
+            style="max-width: 100%; max-height: 400px; justify-self: center"
+            src="https://refactoring.guru/images/patterns/content/prototype/prototype-comic-2-en.png"
+            alt="Illustration of a prototype object being cloned into multiple copies."
         </article>
       </header>
 
       <section class="grid">
         <article class="card span-8">
-          <h2 class="section-title"><span class="emoji">💡</span> When to Use</h2>
+          <h2>When to Use</h2>
           <ul>
             <li>
               You need many similar objects with a large configuration set.
@@ -80,7 +107,7 @@
         </article>
 
         <aside class="card span-4">
-          <h2 class="section-title"><span class="emoji">✅</span> Checklist</h2>
+          <h2>Checklist</h2>
           <ul>
             <li>Common clone interface or base class</li>
             <li>Prototype object(s) with preconfigured state</li>
@@ -91,7 +118,7 @@
         </aside>
 
         <article class="card span-12">
-          <h2 class="section-title"><span class="emoji">🧩</span> UML Snapshot</h2>
+          <h2>UML Snapshot</h2>
           <svg
             class="diagram"
             viewBox="0 0 820 180"
@@ -116,13 +143,13 @@
               opacity="0.08"
               stroke="currentColor"
             />
-            <text x="170" y="48" text-anchor="middle" font-weight="600" fill="white">
+            <text x="170" y="48" text-anchor="middle" font-weight="600">
               Prototype
             </text>
             <line x1="20" y1="58" x2="320" y2="58" stroke="currentColor" />
-            <text x="30" y="82" fill="white">+ clone(): Prototype</text>
+            <text x="30" y="82">+ clone(): Prototype</text>
             <line x1="20" y1="102" x2="320" y2="102" stroke="currentColor" />
-            <text x="30" y="128" fill="white">- state</text>
+            <text x="30" y="128">- state</text>
 
             <rect
               x="420"
@@ -134,11 +161,11 @@
               opacity="0.08"
               stroke="currentColor"
             />
-            <text x="610" y="48" text-anchor="middle" font-weight="600" fill="white">
+            <text x="610" y="48" text-anchor="middle" font-weight="600">
               Client
             </text>
             <line x1="420" y1="58" x2="800" y2="58" stroke="currentColor" />
-            <text x="430" y="82" fill="white">+ usePrototype(p: Prototype)</text>
+            <text x="430" y="82">+ usePrototype(p: Prototype)</text>
             <line x1="420" y1="102" x2="800" y2="102" stroke="currentColor" />
 
             <defs>
@@ -162,12 +189,12 @@
               stroke="currentColor"
               marker-end="url(#arrow)"
             />
-            <text x="335" y="82" font-size="15" fill="white">clone()</text>
+            <text x="335" y="82" font-size="15">clone()</text>
           </svg>
         </article>
 
         <article class="card span-12">
-          <h2 class="section-title"><span class="emoji">💻</span> Idiomatic Implementations</h2>
+          <h2>Idiomatic Implementations</h2>
           <div class="tabs" id="langTabs">
             <div class="tablist" role="tablist" aria-label="Languages">
               <button
@@ -314,7 +341,7 @@ public final class Circle extends Shape {
         </article>
 
         <article class="card span-6">
-          <h2 class="section-title"><span class="emoji">⚖️</span> Pros &amp; Cons</h2>
+          <h2>Pros & Cons</h2>
           <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px">
             <div>
               <h3>✅ Benefits</h3>
@@ -337,7 +364,7 @@ public final class Circle extends Shape {
         </article>
 
         <article class="card span-6">
-          <h2 class="section-title"><span class="emoji">🔄</span> Alternatives</h2>
+          <h2>Alternatives</h2>
           <ul>
             <li>
               <strong>Factory Method</strong>: best when object creation is
@@ -352,16 +379,11 @@ public final class Circle extends Shape {
               object configuration.
             </li>
           </ul>
-          <div class="pill-list" aria-label="Related">
-            <span class="pill">Factory</span>
-            <span class="pill">Builder</span>
-            <span class="pill">Factory Method</span>
-            <span class="pill">Flyweight</span>
-          </div>
+
         </article>
 
         <article class="card span-8">
-          <h2 class="section-title"><span class="emoji">🎮</span> Interactive Demo (JavaScript)</h2>
+          <h2>Interactive Demo (JavaScript)</h2>
           <p>
             Each button clones a prebuilt prototype. The clone gets its own
             object identity, but the same template config.
@@ -376,7 +398,7 @@ public final class Circle extends Shape {
         </article>
 
         <aside class="card span-4">
-          <h2 class="section-title"><span class="emoji">🧪</span> Testing Tips</h2>
+          <h2>Testing Tips</h2>
           <ul>
             <li>Assert clone independence for mutable fields.</li>
             <li>Check whether nested structures are deep-copied or shared.</li>
@@ -391,7 +413,7 @@ public final class Circle extends Shape {
         </aside>
 
         <article class="card span-12">
-          <h2 class="section-title"><span class="emoji">🛡️</span> Common Gotchas &amp; Hardening</h2>
+          <h2>Common Gotchas & Hardening</h2>
           <ul>
             <li>
               <strong>Shallow copy:</strong> duplicated top-level object, but
