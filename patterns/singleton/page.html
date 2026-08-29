@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Singleton Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A concise, practical guide to the Singleton design pattern with examples in Java, C#, JavaScript, and Python." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Creational</span>
+            <h1 class="title">The Singleton Pattern</h1>
+            <p class="subtitle">Ensure a class has only one instance and provide a global point of access to it. Below
+                are practical examples, gotchas, and modern alternatives.</p>
+            <div class="toolbar">
+                <button class="btn">
+                    <a class="clear-styles" href="../index.html">Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+
+        </header>
+
+        <section class="grid">
+            <article class="card span-8">
+                <h2>When to Use</h2>
+                <ul>
+                    <li>There must be exactly one instance (e.g., configuration, app-wide cache, logger, device
+                        manager).</li>
+                    <li>Creation is expensive and you want to reuse the same instance.</li>
+                    <li>You need coordinated access to a shared resource.</li>
+                </ul>
+                <div class="callout" role="note">
+                    <strong>Warning:</strong> Overusing singletons leads to hidden dependencies, hard-to-test code,
+                    tight coupling, and global mutable state.
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Checklist</h2>
+                <ul>
+                    <li>Private constructor (or equivalent restriction)</li>
+                    <li>Static/Module-level <span class="kbd">instance</span></li>
+                    <li>Lazy or eager initialization (pick one)</li>
+                    <li>Thread-safety considered</li>
+                    <li>Guard against serialization/reflection (where applicable)</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>UML Snapshot</h2>
+                <svg class="diagram" viewBox="0 0 820 160" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Singleton">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="20" y="20" width="300" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <rect x="20" y="20" width="300" height="120" rx="12" fill="none" stroke="currentColor" />
+                    <text x="170" y="42" text-anchor="middle" font-weight="600">Singleton</text>
+                    <line x1="20" y1="55" x2="320" y2="55" stroke="currentColor" />
+                    <text x="30" y="75">- instance: Singleton</text>
+                    <text x="30" y="95">- Singleton()</text>
+                    <line x1="20" y1="110" x2="320" y2="110" stroke="currentColor" />
+                    <text x="30" y="130">+ getInstance(): Singleton</text>
+
+                    <rect x="420" y="20" width="380" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <rect x="420" y="20" width="380" height="120" rx="12" fill="none" stroke="currentColor" />
+                    <text x="610" y="42" text-anchor="middle" font-weight="600">Client</text>
+                    <line x1="420" y1="55" x2="800" y2="55" stroke="currentColor" />
+                    <text x="430" y="75">+ use(s: Singleton)</text>
+                    <line x1="420" y1="110" x2="800" y2="110" stroke="currentColor" />
+
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+                    <line x1="420" y1="80" x2="320" y2="80" stroke="currentColor" marker-end="url(#arrow)" />
+                </svg>
+            </article>
+
+            <article class="card span-12">
+                <h2>Idiomatic Implementations</h2>
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <section class="tabpanel" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java — Lazy, Thread-Safe (Double-Checked Locking)</h3>
+                        <pre><code>public final class Config {
+  private static volatile Config instance; // volatile is essential
+  private Config() { /* ... */ }
+  public static Config getInstance() {
+    if (instance == null) { // fast path
+      synchronized (Config.class) {
+        if (instance == null) {
+          instance = new Config();
+        }
+      }
+    }
+    return instance;
+  }
+}
+</code></pre>
+                        <p class="muted">Alternative: <code class="inline">enum</code>-based singleton is simpler and
+                            safe against serialization/reflective attacks.</p>
+                        <pre><code>public enum AppRegistry { INSTANCE; /* fields & methods */ }
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# — Best Practice with Lazy&lt;T&gt;</h3>
+                        <pre><code>public sealed class Registry {
+  private static readonly Lazy&lt;Registry&gt; _instance =
+      new Lazy&lt;Registry&gt;(() =&gt; new Registry());
+  public static Registry Instance =&gt; _instance.Value;
+  private Registry() {}
+}
+</code></pre>
+                        <p class="muted">Eager alternative:</p>
+                        <pre><code>public sealed class Eager {
+  public static readonly Eager Instance = new Eager();
+  private Eager() {}
+}
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript — Module as Singleton</h3>
+                        <pre><code>// settings.js (ES module)
+const settings = { theme: "dark", locale: "en-US" };
+export default settings;
+</code></pre>
+                        <pre><code>// usage
+import settings from "./settings.js";
+settings.theme = "light"; // same object everywhere it's imported
+</code></pre>
+                        <p class="muted">Or use a class but export a single instance:</p>
+                        <pre><code>class Bus { /* ... */ }
+export const eventBus = new Bus();
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python — Module Singleton (Preferred)</h3>
+                        <pre><code># config.py
+HOST = "localhost"
+PORT = 5432
+</code></pre>
+                        <pre><code># usage
+import config
+print(config.PORT)  # the same module object everywhere
+</code></pre>
+                        <p class="muted">If you truly need a class singleton:</p>
+                        <pre><code>class _OnlyOne:
+  _inst = None
+  def __new__(cls, *a, **kw):
+    if cls._inst is None:
+      cls._inst = super().__new__(cls)
+    return cls._inst
+</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <article class="card span-6">
+                <h2>Pros & Cons</h2>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <h3>✅ Benefits</h3>
+                        <ul>
+                            <li>Single access point & easy reuse</li>
+                            <li>Can centralize caching or configuration</li>
+                            <li>May reduce memory/initialization cost</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>⚠️ Pitfalls</h3>
+                        <ul>
+                            <li>Global mutable state ➜ hidden coupling</li>
+                            <li>Hard to mock/test in isolation</li>
+                            <li>Lifecycles become implicit</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card span-6">
+                <h2>Alternatives</h2>
+                <ul>
+                    <li><strong>Dependency Injection</strong>: pass instances explicitly; use containers (e.g., Spring,
+                        .NET DI).</li>
+                    <li><strong>Static functions</strong>: if stateless utilities are enough.</li>
+                    <li><strong>Service Locator (with care)</strong>: hides dependencies; prefer DI if possible.</li>
+                </ul>
+                <div class="pill-list" aria-label="Related">
+                    <span class="pill">Inversion of Control</span>
+                    <span class="pill">Factory</span>
+                    <span class="pill">Monostate</span>
+                    <span class="pill">Module Pattern</span>
+                </div>
+            </article>
+
+            <article class="card span-8">
+                <h2>Real‑World Demo (JS)</h2>
+                <p>This page uses a <em>single</em> in‑memory event bus. Multiple widgets below publish/consume from the
+                    <code class="inline">bus</code>—proving there is just one instance.
+                </p>
+                <div class="toolbar">
+                    <button class="btn" id="incA">Widget A: Increment</button>
+                    <button class="btn" id="incB">Widget B: Increment</button>
+                    <button class="btn ghost" id="reset">Reset</button>
+                </div>
+                <pre id="log"><code>count = 0
+</code></pre>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Testing Tips</h2>
+                <ul>
+                    <li>Expose a <span class="kbd">reset()</span> only in test builds.</li>
+                    <li>Prefer constructor injection to avoid needing singletons.</li>
+                    <li>In Java/.NET, beware of order-of-initialization issues in tests.</li>
+                </ul>
+                <h3>Anti‑Patterns</h3>
+                <ul>
+                    <li>Hiding I/O or complex dependencies behind a singleton.</li>
+                    <li>Using singletons as global variable bags.</li>
+                    <li>Stateful singletons shared across parallel tests.</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>Common Gotchas & Hardening</h2>
+                <ul>
+                    <li><strong>Thread safety:</strong> use correct synchronization (<span class="kbd">volatile</span> +
+                        DCL in Java; <span class="kbd">Lazy&lt;T&gt;</span> in C#).</li>
+                    <li><strong>Reflection/Serialization attacks (Java):</strong> defend by throwing in constructor or
+                        use <span class="kbd">enum</span> singletons.</li>
+                    <li><strong>Multiple class loaders:</strong> can create more than one instance; consider a bootstrap
+                        holder.</li>
+                    <li><strong>Distributed systems:</strong> a process‑local singleton is <em>not</em> cluster‑wide.
+                        Use external coordination (DB/Redis/ZK).</li>
+                </ul>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2025 Singleton Pattern Guide. Built as a single HTML file. Toggle high‑contrast for better projection
+                on a beamer.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Link copier
+        document.getElementById('copyLink').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(location.href);
+                const btn = document.getElementById('copyLink');
+                const old = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = old, 1200);
+            } catch { }
+        });
+
+        // Contrast toggle (temporary CSS override)
+        const toggleBtn = document.getElementById('toggleContrast');
+        let high = false;
+        toggleBtn.addEventListener('click', () => {
+            high = !high;
+            document.documentElement.style.setProperty('--bg', high ? '#05070f' : '');
+            document.documentElement.style.setProperty('--card', high ? '#0a0f22' : '');
+            document.documentElement.style.setProperty('--card-2', high ? '#0b1020' : '');
+            document.documentElement.style.setProperty('--text', high ? '#f2f6ff' : '');
+            document.documentElement.style.setProperty('--border', high ? '#243463' : '');
+        });
+
+        // Tabs logic
+        const tabsRoot = document.getElementById('langTabs');
+        const tabs = Array.from(tabsRoot.querySelectorAll('.tab'));
+        const panels = Array.from(tabsRoot.querySelectorAll('.tabpanel'));
+        function activate(id) {
+            tabs.forEach(t => t.dataset.active = (t.dataset.tab === id));
+            panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+        }
+        tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+        activate('java');
+
+        // Simple Singleton Demo: event bus & counter shared across widgets
+        const Bus = (() => {
+            const listeners = new Map();
+            return {
+                on(event, fn) {
+                    if (!listeners.has(event)) listeners.set(event, new Set());
+                    listeners.get(event).add(fn);
+                    return () => listeners.get(event).delete(fn);
+                },
+                emit(event, payload) {
+                    (listeners.get(event) || []).forEach(fn => fn(payload));
+                }
+            };
+        })(); // module-level singleton bus
+
+        const state = { count: 0 };
+        const log = document.getElementById('log');
+        function render() { log.textContent = `count = ${state.count}\n`; }
+        Bus.on('inc', () => { state.count++; render(); });
+        Bus.on('reset', () => { state.count = 0; render(); });
+
+        document.getElementById('incA').addEventListener('click', () => Bus.emit('inc'));
+        document.getElementById('incB').addEventListener('click', () => Bus.emit('inc'));
+        document.getElementById('reset').addEventListener('click', () => Bus.emit('reset'));
+    </script>
+</body>
+
+</html>
