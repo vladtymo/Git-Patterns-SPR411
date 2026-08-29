@@ -1,49 +1,50 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Патерн Проектування: Composite</title>
+    <title>Design Pattern: Composite</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <header class="hero">
-        <h1>Патерн Composite (Компонувальник)</h1>
-        <p>Структурний патерн проектування</p>
+        <h1>Design Pattern: Composite (Composite)</h1>
+        <p>Structural design pattern</p>
     </header>
 
     <main class="container">
         <section class="card">
-            <h2>Що це таке?</h2>
-            <p><strong>Composite (Компонувальник)</strong> — це структурний патерн проектування, який дає змогу
-                групувати об'єкти в деревоподібні структури, а потім працювати з цими структурами так, ніби це єдиний
-                об'єкт.</p>
+            <h2>What is it?</h2>
+            <p><strong>Composite (Composite)</strong> — is a structural design pattern that allows you to compose
+                objects into tree-like structures and then work with these structures as if they were individual
+                objects.</p>
         </section>
 
         <section class="card">
-            <h2>Структура патерну</h2>
+            <h2>Pattern Structure</h2>
             <ul class="features-list">
-                <li><strong>Component (Компонент):</strong> Визначає спільний інтерфейс для простих (листків) та
-                    складених об'єктів дерева.</li>
-                <li><strong>Leaf (Листок):</strong> Простий елемент дерева, який не має підлеглих об'єктів. Саме він
-                    виконує основну роботу.</li>
-                <li><strong>Composite (Контейнер):</strong> Складний елемент, який містить підлеглі елементи (листки або
-                    інші контейнери). Він делегує роботу своїм підлеглим елементам.</li>
+                <li><strong>Component:</strong> Defines a common interface for both simple leaf objects and complex
+                    composite objects in the tree.</li>
+                <li><strong>Leaf:</strong> A simple tree element that has no child objects. It is the one that performs
+                    the main work.</li>
+                <li><strong>Composite:</strong> A complex element that contains child elements (leaves or other
+                    composites). It delegates work to its child elements.</li>
             </ul>
         </section>
 
         <section class="card">
-            <h2>Коли використовувати?</h2>
-            <p>Патерн ідеально підходить, коли вам потрібно реалізувати деревоподібну структуру об'єктів. Класичний
-                приклад — файлова система, де папки містять файли та інші папки. Завдяки патерну, програма може однаково
-                обробляти як окремий файл, так і папку з сотнями файлів.</p>
+            <h2>When to use?</h2>
+            <p>This pattern is ideal when you need to implement a tree-like structure of objects. A classic example is a
+                file system, where folders contain files and other folders. Thanks to the pattern, the program can
+                handle
+                both an individual file and a folder with hundreds of files in the same way.</p>
         </section>
     </main>
 
     <footer>
-        <p>Створено для вивчення патернів проектування</p>
+        <p>Created for learning design patterns</p>
     </footer>
 </body>
 
