@@ -59,14 +59,12 @@
                             <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
                         </linearGradient>
                     </defs>
-                    <!-- Client Interface -->
                     <rect x="20" y="20" width="200" height="60" rx="8" fill="url(#g)" opacity="0.08"
                         stroke="currentColor" stroke-dasharray="4,4" />
                     <text x="120" y="40" text-anchor="middle" font-weight="600">&lt;&lt;interface&gt;&gt;</text>
                     <text x="120" y="58" text-anchor="middle" font-weight="600">ClientInterface</text>
                     <text x="120" y="75" text-anchor="middle" font-size="12">+ request()</text>
 
-                    <!-- Adapter -->
                     <rect x="280" y="20" width="200" height="100" rx="8" fill="url(#g)" opacity="0.08"
                         stroke="currentColor" />
                     <text x="380" y="40" text-anchor="middle" font-weight="600">Adapter</text>
@@ -76,7 +74,6 @@
                     <text x="290" y="100" font-size="12">+ request()</text>
                     <text x="290" y="115" font-size="12" opacity="0.7">translates to specific_request()</text>
 
-                    <!-- Service -->
                     <rect x="540" y="20" width="200" height="80" rx="8" fill="url(#g)" opacity="0.08"
                         stroke="currentColor" />
                     <text x="640" y="40" text-anchor="middle" font-weight="600">Service</text>
@@ -85,14 +82,12 @@
                     <text x="550" y="70" font-size="12">+ specific_request()</text>
                     <text x="550" y="85" font-size="12" opacity="0.7">(incompatible interface)</text>
 
-                    <!-- Client -->
                     <rect x="20" y="120" width="240" height="60" rx="8" fill="url(#g)" opacity="0.08"
                         stroke="currentColor" />
                     <text x="140" y="138" text-anchor="middle" font-weight="600">Client</text>
                     <line x1="20" y1="150" x2="260" y2="150" stroke="currentColor" />
                     <text x="30" y="168" font-size="12">+ work(target: ClientInterface)</text>
 
-                    <!-- Arrows -->
                     <defs>
                         <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
                             markerUnits="strokeWidth">
@@ -103,14 +98,11 @@
                             <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
                         </marker>
                     </defs>
-                    <!-- Client to Adapter -->
                     <line x1="140" y1="120" x2="350" y2="120" stroke="currentColor" marker-end="url(#arrow)" />
                     <text x="230" y="112" text-anchor="middle" font-size="11">uses</text>
-                    <!-- Adapter implements ClientInterface -->
                     <path d="M 380 20 L 380 0 L 230 0 L 230 20" fill="none" stroke="currentColor" stroke-dasharray="2,2"
                         marker-end="url(#arrow)" />
                     <text x="290" y="12" text-anchor="middle" font-size="11">implements</text>
-                    <!-- Adapter to Service -->
                     <line x1="480" y1="70" x2="540" y2="70" stroke="currentColor" marker-end="url(#arrow)" />
                     <text x="505" y="62" text-anchor="middle" font-size="11">wraps</text>
                 </svg>
@@ -136,29 +128,8 @@ interface StandardPlug {
     void powerUp();
 }
 
-// Existing service (adaptee) with incompatible interface
-class EuropeanSocket {
-    public void connectEU() {
-        System.out.println("Powered via EU socket");
-    }
-}
 
-// Adapter: wraps EU socket to look like StandardPlug
-class PlugAdapter implements StandardPlug {
-    private EuropeanSocket europeanSocket;
 
-    public PlugAdapter(EuropeanSocket socket) {
-        this.europeanSocket = socket;
-    }
-
-    @Override
-    public void powerUp() {
-        // Translate from expected interface to actual service
-        europeanSocket.connectEU();
-    }
-}
-
-// Usage
 StandardPlug adapter = new PlugAdapter(new EuropeanSocket());
 adapter.powerUp();  // "Powered via EU socket"
 </code></pre>
@@ -172,7 +143,7 @@ public interface IStandardPlug
     void PowerUp();
 }
 
-// Existing service
+
 public class EuropeanSocket
 {
     public void ConnectEU()
@@ -181,7 +152,6 @@ public class EuropeanSocket
     }
 }
 
-// Adapter
 public class PlugAdapter : IStandardPlug
 {
     private readonly EuropeanSocket _socket;
@@ -197,7 +167,7 @@ public class PlugAdapter : IStandardPlug
     }
 }
 
-// Usage
+
 IStandardPlug adapter = new PlugAdapter(new EuropeanSocket());
 adapter.PowerUp();
 </code></pre>
@@ -262,7 +232,7 @@ class PlugAdapter(StandardPlug):
         # Translate to actual service
         self._socket.connect_eu()
 
-# Usage
+
 adapter = PlugAdapter(EuropeanSocket())
 adapter.power_up()  # "Powered via EU socket"
 </code></pre>
@@ -280,12 +250,11 @@ class StockDataFeed {
     String getStockData() { return "&lt;stock&gt;...&lt;/stock&gt;"; }
 }
 
-// 3rd-party library wants JSON (you can't modify it)
 interface AnalyticsService {
     void analyze(String jsonData);
 }
 
-// Adapter: bridge the gap
+
 class XMLtoJSONAdapter implements AnalyticsService {
     private StockDataFeed feed;
     public XMLtoJSONAdapter(StockDataFeed feed) { this.feed = feed; }
@@ -356,40 +325,7 @@ class XMLtoJSONAdapter implements AnalyticsService {
         </footer>
     </div>
 
-    <script>
-        // Link copier
-        document.getElementById('copyLink').addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(location.href);
-                const btn = document.getElementById('copyLink');
-                const old = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = old, 1200);
-            } catch { }
-        });
-
-        // Contrast toggle
-        const toggleBtn = document.getElementById('toggleContrast');
-        let high = false;
-        toggleBtn.addEventListener('click', () => {
-            high = !high;
-            document.documentElement.style.setProperty('--bg', high ? '#05070f' : '');
-            document.documentElement.style.setProperty('--card', high ? '#0a0f22' : '');
-            document.documentElement.style.setProperty('--card-2', high ? '#0b1020' : '');
-            document.documentElement.style.setProperty('--text', high ? '#f2f6ff' : '');
-            document.documentElement.style.setProperty('--border', high ? '#243463' : '');
-        });
-
-        // Tabs logic
-        const tabsRoot = document.getElementById('langTabs');
-        const tabs = Array.from(tabsRoot.querySelectorAll('.tab'));
-        const panels = Array.from(tabsRoot.querySelectorAll('.tabpanel'));
-        function activate(id) {
-            tabs.forEach(t => t.dataset.active = (t.dataset.tab === id));
-            panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
-        }
-        tabs.forEach(tab => tab.addEventListener('click', () => activate(tab.dataset.tab)));
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
