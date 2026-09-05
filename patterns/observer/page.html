@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Observer Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A practical guide to the Observer design pattern with UML, C# examples, Events, Reactive Extensions, benefits, pitfalls and real-world examples." />
+    <!-- Підключення зовнішнього файлу стилів -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Behavioral</span>
+            <h1 class="title">The Observer Pattern</h1>
+            <p class="subtitle">Define a one-to-many dependency between objects so that when one object changes state,
+                all its dependents are notified and updated automatically.</p>
+            <div class="toolbar">
+                <button class="btn"><a class="clear-styles" href="../../index.html">Back Home</a></button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+        </header>
+
+        <section class="grid">
+            <!-- ================= WHAT IS OBSERVER ================= -->
+            <article class="card span-8">
+                <span class="kicker">Concept</span>
+                <h2>What is the Observer Pattern?</h2>
+                <p>The <strong>Observer</strong> is a behavioral design pattern that allows an object (the
+                    subject/publisher) to notify other objects (the observers/subscribers) about changes in its state.
+                </p>
+                <p>Instead of having objects periodically check for updates (polling), the subject proactively pushes
+                    notifications to a list of registered observers.</p>
+                <div class="callout">
+                    <strong>Core idea:</strong> Establish a subscription mechanism to notify multiple objects about any
+                    events that happen to the object they're observing.
+                </div>
+            </article>
+
+            <!-- ================= CHECKLIST ================= -->
+            <aside class="card span-4">
+                <h2>Structure</h2>
+                <ul>
+                    <li><strong>Subject</strong> — manages observers and sends notifications</li>
+                    <li><strong>Observer</strong> — interface for receiving updates</li>
+                    <li><strong>ConcreteSubject</strong> — holds the actual state</li>
+                    <li><strong>ConcreteObserver</strong> — performs actions upon notification</li>
+                </ul>
+            </aside>
+
+            <!-- ================= PROBLEM ================= -->
+            <article class="card span-12">
+                <span class="kicker">
+                    The Problem
+                </span>
+                <h2>
+                    Without the Observer
+                </h2>
+                <p>
+                    Imagine an e-commerce system where different services need to react when an order is placed:
+                    Email Service, Inventory Service, and Analytics Service.
+                </p>
+                <p>If the Order Service calls them directly, it becomes tightly coupled to every secondary system. Every
+                    time you add a new feature (like SMS notifications), you must modify the core Order Service.</p>
+                <pre><code>OrderService
+├──► EmailService.SendReceipt()
+├──► InventoryService.ReserveItems()
+└──► AnalyticsService.LogSale()</code></pre>
+                <p class="muted">Alternatively, if services continuously poll the database for new orders, it wastes CPU
+                    and network resources.</p>
+            </article>
+
+            <!-- ================= UML ================= -->
+            <article class="card span-12">
+                <span class="kicker">Architecture</span>
+                <h2>UML Snapshot</h2>
+                <svg class="diagram" viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Observer Pattern">
+                    <defs>
+                        <linearGradient id="subjectGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                        <marker id="hollowArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"
+                            markerUnits="strokeWidth">
+                            <polygon points="0,0 10,6 0,12" fill="none" stroke="currentColor" />
+                        </marker>
+                    </defs>
+
+                    <!-- Subject -->
+                    <rect x="50" y="30" width="250" height="110" rx="12" fill="url(#subjectGradient)" opacity="0.12"
+                        stroke="currentColor" />
+                    <text x="175" y="55" text-anchor="middle" font-weight="600">Subject (Publisher)</text>
+                    <line x1="50" y1="70" x2="300" y2="70" stroke="currentColor" />
+                    <text x="65" y="95">+ attach(observer)</text>
+                    <text x="65" y="115">+ detach(observer)</text>
+                    <text x="65" y="135">+ notify()</text>
+
+                    <!-- Observer Interface -->
+                    <rect x="500" y="50" width="250" height="70" rx="12" fill="none" stroke="currentColor"
+                        stroke-dasharray="4" />
+                    <text x="625" y="75" text-anchor="middle" font-weight="600">«interface» Observer</text>
+                    <line x1="500" y1="90" x2="750" y2="90" stroke="currentColor" stroke-dasharray="4" />
+                    <text x="515" y="112">+ update(state)</text>
+
+                    <!-- Concrete Subject -->
+                    <rect x="50" y="210" width="250" height="90" rx="12" fill="url(#subjectGradient)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="175" y="235" text-anchor="middle" font-weight="600">ConcreteSubject</text>
+                    <line x1="50" y1="250" x2="300" y2="250" stroke="currentColor" />
+                    <text x="65" y="275">+ getState()</text>
+                    <text x="65" y="295">+ setState()</text>
+
+                    <!-- Concrete Observer -->
+                    <rect x="500" y="210" width="250" height="90" rx="12" fill="none" stroke="currentColor" />
+                    <text x="625" y="235" text-anchor="middle" font-weight="600">ConcreteObserver</text>
+                    <line x1="500" y1="250" x2="750" y2="250" stroke="currentColor" />
+                    <text x="515" y="275">+ update(state)</text>
+
+                    <!-- Relationships -->
+                    <line x1="300" y1="85" x2="490" y2="85" stroke="currentColor" marker-end="url(#arrow)" />
+                    <text x="395" y="75" text-anchor="middle" font-size="12">notifies</text>
+                    <line x1="175" y1="210" x2="175" y2="150" stroke="currentColor" marker-end="url(#hollowArrow)" />
+                    <line x1="625" y1="210" x2="625" y2="130" stroke="currentColor" stroke-dasharray="4"
+                        marker-end="url(#hollowArrow)" />
+                </svg>
+                <p class="muted">The Subject maintains a list of Observers. When its state changes, it iterates through
+                    the list and calls the <code>update()</code> method on each.</p>
+            </article>
+
+            <!-- ================= HOW IT WORKS ================= -->
+            <article class="card span-6">
+                <h2>How It Works</h2>
+                <ol>
+                    <li>Observers <strong>subscribe</strong> to the Subject.</li>
+                    <li>The Subject holds a list of these references.</li>
+                    <li>An event occurs, altering the Subject's state.</li>
+                    <li>The Subject iterates over its list and calls <code>update()</code> on each registered Observer.
+                    </li>
+                </ol>
+                <pre><code>[Publisher]
+ ├── Add(Subscriber A)
+ ├── Add(Subscriber B)
+ │
+ [State Changes]
+ ├── Notify() ──► Subscriber A.Update()
+ └── Notify() ──► Subscriber B.Update()</code></pre>
+            </article>
+
+            <!-- ================= WHEN TO USE ================= -->
+            <article class="card span-6">
+                <h2>When to Use</h2>
+                <ul>
+                    <li>Changes to one object require changing others, and you don't know how many objects need to be
+                        changed dynamically.</li>
+                    <li>You need to avoid tight coupling between core business logic and secondary systems (like UI or
+                        logging).</li>
+                    <li>You are building an event-driven architecture or UI framework.</li>
+                </ul>
+                <div class="callout">
+                    <strong>Good signal:</strong> You find yourself writing code where an object calls methods on many
+                    unrelated objects just to say "I'm done updating."
+                </div>
+            </article>
+
+            <!-- ================= C# IMPLEMENTATION ================= -->
+            <article class="card span-12">
+                <span class="kicker">Implementation</span>
+                <h2>C# — Observer Approaches</h2>
+                <div class="tabs" id="codeTabs">
+                    <div class="tablist" role="tablist" aria-label="Implementation examples">
+                        <button class="tab" role="tab" data-tab="classic">Classic Interfaces</button>
+                        <button class="tab" role="tab" data-tab="events">C# Events</button>
+                        <button class="tab" role="tab" data-tab="reactive">Reactive (IObservable)</button>
+                    </div>
+
+                    <!-- CLASSIC -->
+                    <section class="tabpanel" id="tab-classic" role="tabpanel">
+                        <h3>Classic GoF Implementation</h3>
+                        <pre><code>public interface IObserver
+{
+    void Update(string state);
+}
+
+public class Subject
+{
+    private List&lt;IObserver&gt; _observers = new();
+    private string _state;
+
+    public void Attach(IObserver observer) =&gt; _observers.Add(observer);
+    public void Detach(IObserver observer) =&gt; _observers.Remove(observer);
+
+    public void StateChanged(string newState)
+    {
+        _state = newState;
+        Notify();
+    }
+
+    private void Notify()
+    {
+        foreach (var observer in _observers)
+        {
+            observer.Update(_state);
+        }
+    }
+}</code></pre>
+                    </section>
+
+                    <!-- EVENTS -->
+                    <section class="tabpanel" id="tab-events" role="tabpanel">
+                        <h3>Modern C# via Events / Delegates</h3>
+                        <pre><code>public class OrderService
+{
+    // C# provides native support for the Observer pattern via events
+    public event EventHandler&lt;OrderEventArgs&gt; OrderPlaced;
+
+    public void PlaceOrder(Order order)
+    {
+        // ... save to database ...
+
+        // Notify all subscribers
+        OrderPlaced?.Invoke(this, new OrderEventArgs { OrderId = order.Id });
+    }
+}
+
+// Subscriber
+public class EmailService
+{
+    public void Subscribe(OrderService orderService)
+    {
+        orderService.OrderPlaced += HandleOrderPlaced;
+    }
+
+    private void HandleOrderPlaced(object sender, OrderEventArgs e)
+    {
+        Console.WriteLine($"Sending email for Order {e.OrderId}");
+    }
+}</code></pre>
+                    </section>
+
+                    <!-- REACTIVE -->
+                    <section class="tabpanel" id="tab-reactive" role="tabpanel">
+                        <h3>Reactive Extensions (Rx.NET)</h3>
+                        <pre><code>// IObservable&lt;T&gt; acts as the Subject (Publisher)
+// IObserver&lt;T&gt; acts as the Subscriber
+
+public class Ticker : IObservable&lt;int&gt;
+{
+    public IDisposable Subscribe(IObserver&lt;int&gt; observer)
+    {
+        // implementation details for subscription...
+        return new Unsubscriber(); // Allows clean detachment
+    }
+}
+
+// Usage with LINQ
+var ticker = new Ticker();
+var subscription = ticker
+    .Where(price =&gt; price &gt; 100)
+    .Subscribe(price =&gt; Console.WriteLine($"High price alert: {price}"));
+
+// Unsubscribe
+subscription.Dispose();</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <!-- ================= PUB/SUB VS OBSERVER ================= -->
+            <article class="card span-8">
+                <span class="kicker">Comparison</span>
+                <h2>Observer vs Pub-Sub</h2>
+                <p>Though often used interchangeably, there is a distinct architectural difference:</p>
+                <p>In the <strong>Observer</strong> pattern, the Subject and Observer know about each other. The
+                    Observer explicitly registers with the Subject.</p>
+                <p>In <strong>Publish-Subscribe (Pub/Sub)</strong>, there is a message broker (Event Bus) in between.
+                    Publishers and Subscribers don't know each other at all.</p>
+                <pre><code>Observer:
+Publisher ──────────────► Subscriber
+
+Pub/Sub:
+Publisher ──► [Event Bus] ──► Subscriber</code></pre>
+            </article>
+
+            <!-- ================= MINDCARE (EXAMPLE) ================= -->
+            <aside class="card span-4">
+                <span class="kicker">Real-World</span>
+                <h2>Stock Market</h2>
+                <p>A stock exchange (Subject) updates stock prices. Multiple trading apps, news tickers, and analytics
+                    dashboards (Observers) automatically refresh their UI when notified.</p>
+                <div class="pill-list">
+                    <span class="pill">Event-Driven</span>
+                    <span class="pill">Reactive UI</span>
+                    <span class="pill">Decoupling</span>
+                </div>
+            </aside>
+
+            <!-- ================= REAL WORLD DEMO ================= -->
+            <article class="card span-12">
+                <h2>Interactive Demo: Weather Station</h2>
+                <p>The Weather Station (Subject) pushes updates. Display widgets (Observers) subscribe to receive these
+                    updates.</p>
+                <div class="toolbar" style="margin-bottom: 14px;">
+                    <button class="btn" id="btnTogglePhone">📱 Subscribe Phone</button>
+                    <button class="btn" id="btnToggleWeb">💻 Subscribe Web App</button>
+                    <button class="btn accent" id="btnUpdateTemp"
+                        style="background: var(--brand); color: #fff; border:none;">Update Temperature 🌡️</button>
+                    <button class="btn ghost" id="clearLog">Clear Log</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+                    <pre id="demoLog"
+                        style="height: 200px; margin: 0;"><code>[System] Weather Station initialized...</code></pre>
+                    <div class="card"
+                        style="margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <span class="muted" style="margin-bottom: 8px;">Active Subscribers</span>
+                        <div id="subscriberCount" style="font-size: 48px; font-weight: bold; color: var(--accent);">0
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- ================= FOOTER ================= -->
+        <footer>
+            <p>© 2026 Observer Pattern Guide. Built as a single HTML file.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
