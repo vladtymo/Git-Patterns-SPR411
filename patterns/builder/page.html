@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Builder Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A comprehensive guide to the Builder design pattern based on Refactoring Guru with diagrams and examples." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Creational</span>
+            <h1 class="title">The Builder Pattern</h1>
+            <p class="subtitle">Construct complex objects step by step. Produce different types and representations of an object using the same construction code.</p>
+            <div class="toolbar">
+                <button class="btn">
+                    <a class="clear-styles" href="../../index.html">← Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+        </header>
+
+        <section class="grid">
+            <!-- INTENT -->
+            <article class="card span-12">
+                <h2>Intent</h2>
+                <p><strong>Builder</strong> is a creational design pattern that lets you construct complex objects step by step. The pattern allows you to produce different types and representations of an object using the same construction code.</p>
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-1.png" alt="Builder design pattern intent illustration" />
+                    </div>
+                    <figcaption>The Builder pattern lets you construct complex objects step by step.</figcaption>
+                </figure>
+            </article>
+
+            <!-- PROBLEM -->
+            <article class="card span-12">
+                <h2>Problem</h2>
+                <p>Imagine a complex object that requires laborious, step-by-step initialization of many fields and nested objects. Such initialization code is usually buried inside a monstrous constructor with lots of parameters. Or even worse: scattered all over the client code.</p>
+                
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-2.png" alt="Lots of subclasses create another problem" />
+                    </div>
+                    <figcaption>You might make the program too complex by creating a subclass for every possible configuration of an object.</figcaption>
+                </figure>
+
+                <p>For example, let’s think about how to create a <code class="inline">House</code> object. To build a simple house, you need to construct four walls and a floor, install a door, fit a pair of windows, and build a roof. But what if you want a bigger, brighter house, with a backyard and other goodies (like a heating system, plumbing, and electrical wiring)?</p>
+                <p>The simplest solution is to extend the base <code class="inline">House</code> class and create a set of subclasses to cover all combinations of the parameters. But eventually you’ll end up with a considerable number of subclasses. Any new parameter, such as the porch style, will require growing this hierarchy even more.</p>
+                <p>There’s another approach that doesn’t involve breeding subclasses: creating a giant constructor right in the base <code class="inline">House</code> class with all possible parameters that control the house object.</p>
+
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-3.png" alt="The telescoping constructor" />
+                    </div>
+                    <figcaption>The constructor with lots of parameters has its downside: not all parameters are needed at all times (telescoping constructor).</figcaption>
+                </figure>
+
+                <p>In most cases, most of the parameters will be unused, making the constructor calls pretty ugly. For instance, only a fraction of houses have swimming pools, so the parameters related to swimming pools will be useless nine times out of ten.</p>
+            </article>
+
+            <!-- SOLUTION -->
+            <article class="card span-12">
+                <h2>Solution</h2>
+                <p>The Builder pattern suggests that you extract the object construction code out of its own class and move it to separate objects called <em>builders</em>.</p>
+                
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-4.png" alt="Applying the Builder pattern" />
+                    </div>
+                    <figcaption>The Builder pattern lets you construct complex objects step by step without exposing the unfinished product.</figcaption>
+                </figure>
+
+                <p>The pattern organizes object construction into a set of steps (<code class="inline">buildWalls</code>, <code class="inline">buildDoor</code>, etc.). To create an object, you execute a series of these steps on a builder object. The important part is that you don’t need to call all of the steps. You can call only those steps that are necessary for producing a particular configuration of an object.</p>
+
+                <h3>Different Builders for Different Representations</h3>
+                <p>Some of the construction steps might require different implementations when you need to build various representations of the product. For example, walls of a cabin may be built of wood, but castle walls must be built with stone.</p>
+                
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-5.png" alt="Different builders execute the same task in various ways" />
+                    </div>
+                    <figcaption>Different builders execute the same task in various ways.</figcaption>
+                </figure>
+
+                <p>You can create several different builder classes that implement the same set of building steps, but in a different manner. Then you can use these builders in the construction process to produce different kinds of objects.</p>
+
+                <h3>Director</h3>
+                <p>You can go further and extract a series of calls to the builder steps you use to construct a product into a separate class called <em>Director</em>. The director class defines the order in which to execute the building steps, while the builder provides the implementation for those steps.</p>
+
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-6.png" alt="The director knows which building steps to execute" />
+                    </div>
+                    <figcaption>The director knows which building steps to execute to get a working product.</figcaption>
+                </figure>
+
+                <div class="callout" role="note">
+                    <strong>Note:</strong> Having a director class in your program isn’t strictly mandatory. You can always call building steps in a specific order directly from client code. However, the director class encapsulates construction routines so you can reuse them across your entire program.
+                </div>
+            </article>
+
+            <!-- STRUCTURE -->
+            <article class="card span-12">
+                <h2>Structure</h2>
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-7.png" alt="Structure of the Builder design pattern" />
+                    </div>
+                    <figcaption>UML class diagram of the Builder design pattern</figcaption>
+                </figure>
+
+                <ol class="step-list">
+                    <li>
+                        <strong>Builder Interface:</strong> Declares product construction steps that are common to all types of builders.
+                    </li>
+                    <li>
+                        <strong>Concrete Builders:</strong> Provide different implementations of the construction steps. Concrete builders may produce products that don't follow the common interface.
+                    </li>
+                    <li>
+                        <strong>Products:</strong> The resulting objects. Products constructed by different builders don't have to belong to the same class hierarchy or interface.
+                    </li>
+                    <li>
+                        <strong>Director:</strong> Defines the order in which to call construction steps, so you can create and reuse specific configurations of products.
+                    </li>
+                    <li>
+                        <strong>Client:</strong> Associates one of the builder objects with the director. The client initiates the build and retrieves the final product from the builder.
+                    </li>
+                </ol>
+            </article>
+
+            <!-- PSEUDOCODE -->
+            <article class="card span-12">
+                <h2>Pseudocode &amp; Real-World Example</h2>
+                <p>This example of the <strong>Builder</strong> pattern illustrates how you can reuse the same object construction code when building different types of products, such as cars, and create the corresponding manuals for them.</p>
+
+                <figure>
+                    <div class="diagram-card">
+                        <img src="../../img/builder-8.png" alt="Structure of the Builder pattern example (Cars & Manuals)" />
+                    </div>
+                    <figcaption>Step-by-step construction of cars and the user guides that fit those car models.</figcaption>
+                </figure>
+
+                <pre><code>// Using Builder makes sense when products are complex and require extensive configuration.
+class Car is
+    // A car can have GPS, trip computer, seats, engine type, etc.
+
+class Manual is
+    // Describes every feature corresponding to the car's configuration.
+
+// The builder interface specifies methods for creating different parts of the product.
+interface Builder is
+    method reset()
+    method setSeats(number: int)
+    method setEngine(engine: Engine)
+    method setTripComputer(enabled: boolean)
+    method setGPS(enabled: boolean)
+
+// Concrete Builder: CarBuilder
+class CarBuilder implements Builder is
+    private field car: Car
+
+    constructor CarBuilder() is
+        this.reset()
+
+    method reset() is
+        this.car = new Car()
+
+    method setSeats(number: int) is
+        this.car.seats = number
+
+    method setEngine(engine: Engine) is
+        this.car.engine = engine
+
+    method setTripComputer(enabled: boolean) is
+        this.car.tripComputer = enabled
+
+    method setGPS(enabled: boolean) is
+        this.car.gps = enabled
+
+    method getProduct(): Car is
+        product = this.car
+        this.reset()
+        return product
+
+// Concrete Builder: CarManualBuilder
+class CarManualBuilder implements Builder is
+    private field manual: Manual
+
+    constructor CarManualBuilder() is
+        this.reset()
+
+    method reset() is
+        this.manual = new Manual()
+
+    method setSeats(number: int) is
+        this.manual.addInfo("Seats: " + number)
+
+    method setEngine(engine: Engine) is
+        this.manual.addInfo("Engine specs: " + engine.specs)
+
+    method setTripComputer(enabled: boolean) is
+        this.manual.addInfo("Trip computer instructions")
+
+    method setGPS(enabled: boolean) is
+        this.manual.addInfo("GPS navigation manual")
+
+    method getProduct(): Manual is
+        product = this.manual
+        this.reset()
+        return product
+
+// The Director defines the order of building steps
+class Director is
+    method constructSportsCar(builder: Builder) is
+        builder.reset()
+        builder.setSeats(2)
+        builder.setEngine(new SportEngine())
+        builder.setTripComputer(true)
+        builder.setGPS(true)
+
+    method constructSUV(builder: Builder) is
+        builder.reset()
+        builder.setSeats(7)
+        builder.setEngine(new V8Engine())
+        builder.setTripComputer(true)
+        builder.setGPS(true)
+
+// Client Code
+class Application is
+    method makeCar() is
+        director = new Director()
+
+        CarBuilder builder = new CarBuilder()
+        director.constructSportsCar(builder)
+        Car car = builder.getProduct()
+
+        CarManualBuilder manualBuilder = new CarManualBuilder()
+        director.constructSportsCar(manualBuilder)
+        Manual manual = manualBuilder.getProduct()
+</code></pre>
+            </article>
+
+            <!-- IDIOMATIC IMPLEMENTATIONS -->
+            <article class="card span-12">
+                <h2>Idiomatic Implementations</h2>
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript / TypeScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <!-- JAVA -->
+                    <section class="tabpanel" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java — Fluent Builder with Director</h3>
+                        <pre><code>public class Pizza {
+    private final String crust;
+    private final String sauce;
+    private final String cheese;
+    private final List&lt;String&gt; toppings;
+
+    private Pizza(Builder builder) {
+        this.crust = builder.crust;
+        this.sauce = builder.sauce;
+        this.cheese = builder.cheese;
+        this.toppings = builder.toppings;
+    }
+
+    public static class Builder {
+        private String crust = "Thin";
+        private String sauce = "Tomato";
+        private String cheese = "Mozzarella";
+        private List&lt;String&gt; toppings = new ArrayList&lt;&gt;();
+
+        public Builder crust(String crust) { this.crust = crust; return this; }
+        public Builder sauce(String sauce) { this.sauce = sauce; return this; }
+        public Builder cheese(String cheese) { this.cheese = cheese; return this; }
+        public Builder addTopping(String topping) { this.toppings.add(topping); return this; }
+
+        public Pizza build() {
+            return new Pizza(this);
+        }
+    }
+}
+
+// Usage:
+Pizza myPizza = new Pizza.Builder()
+    .crust("Cheesy Crust")
+    .addTopping("Mushrooms")
+    .addTopping("Olives")
+    .build();
+</code></pre>
+                    </section>
+
+                    <!-- C# -->
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# — Fluent Interface with Method Chaining</h3>
+                        <pre><code>public class Computer
+{
+    public string CPU { get; set; } = string.Empty;
+    public string GPU { get; set; } = string.Empty;
+    public int RAM { get; set; }
+    public int Storage { get; set; }
+}
+
+public interface IComputerBuilder
+{
+    IComputerBuilder SetCPU(string cpu);
+    IComputerBuilder SetGPU(string gpu);
+    IComputerBuilder SetRAM(int ramGb);
+    IComputerBuilder SetStorage(int storageGb);
+    Computer Build();
+}
+
+public class GamingComputerBuilder : IComputerBuilder
+{
+    private Computer _computer = new();
+
+    public IComputerBuilder SetCPU(string cpu) { _computer.CPU = cpu; return this; }
+    public IComputerBuilder SetGPU(string gpu) { _computer.GPU = gpu; return this; }
+    public IComputerBuilder SetRAM(int ramGb) { _computer.RAM = ramGb; return this; }
+    public IComputerBuilder SetStorage(int storageGb) { _computer.Storage = storageGb; return this; }
+
+    public Computer Build()
+    {
+        var result = _computer;
+        _computer = new();
+        return result;
+    }
+}
+</code></pre>
+                    </section>
+
+                    <!-- JAVASCRIPT -->
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript / TypeScript — Fluent Builder Class</h3>
+                        <pre><code>class RequestBuilder {
+    constructor() {
+        this.url = "";
+        this.method = "GET";
+        this.headers = {};
+        this.body = null;
+    }
+
+    setUrl(url) {
+        this.url = url;
+        return this;
+    }
+
+    setMethod(method) {
+        this.method = method.toUpperCase();
+        return this;
+    }
+
+    setHeader(key, value) {
+        this.headers[key] = value;
+        return this;
+    }
+
+    setPayload(data) {
+        this.body = JSON.stringify(data);
+        this.headers["Content-Type"] = "application/json";
+        return this;
+    }
+
+    build() {
+        if (!this.url) throw new Error("URL is required to build a request");
+        return {
+            url: this.url,
+            method: this.method,
+            headers: this.headers,
+            body: this.body
+        };
+    }
+}
+
+// Usage
+const req = new RequestBuilder()
+    .setUrl("/api/v1/orders")
+    .setMethod("POST")
+    .setPayload({ item: "Keyboard", qty: 1 })
+    .build();
+</code></pre>
+                    </section>
+
+                    <!-- PYTHON -->
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python — Pythonic Builder</h3>
+                        <pre><code>class QueryBuilder:
+    def __init__(self, table: str):
+        self._table = table
+        self._fields = ["*"]
+        self._where_conditions = []
+        self._limit_val = None
+
+    def select(self, *fields: str) -> "QueryBuilder":
+        self._fields = list(fields)
+        return self
+
+    def where(self, condition: str) -> "QueryBuilder":
+        self._where_conditions.append(condition)
+        return self
+
+    def limit(self, count: int) -> "QueryBuilder":
+        self._limit_val = count
+        return self
+
+    def build(self) -> str:
+        query = f"SELECT {', '.join(self._fields)} FROM {self._table}"
+        if self._where_conditions:
+            query += f" WHERE {' AND '.join(self._where_conditions)}"
+        if self._limit_val:
+            query += f" LIMIT {self._limit_val}"
+        return query + ";"
+
+# Usage:
+sql = (QueryBuilder("users")
+       .select("id", "name", "email")
+       .where("active = 1")
+       .where("age >= 18")
+       .limit(25)
+       .build())
+</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <!-- PROS & CONS -->
+            <article class="card span-6">
+                <h2>Pros &amp; Cons</h2>
+                <div class="pro-con-grid">
+                    <div class="pro-box">
+                        <h3>✅ Advantages</h3>
+                        <ul>
+                            <li>Construct objects step-by-step, defer steps, or run them recursively.</li>
+                            <li>Reuse construction code when building varied representations.</li>
+                            <li><strong>Single Responsibility:</strong> Isolate complex construction logic from business code.</li>
+                            <li>Prevents telescoping constructors with dozen unused arguments.</li>
+                        </ul>
+                    </div>
+                    <div class="con-box">
+                        <h3>⚠️ Disadvantages</h3>
+                        <ul>
+                            <li>Overall code complexity increases because you must create multiple new classes.</li>
+                            <li>High ceremony for simple objects with few fixed fields.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <!-- APPLICABILITY & CHECKLIST -->
+            <article class="card span-6">
+                <h2>Applicability</h2>
+                <ul>
+                    <li><strong>Eliminate telescoping constructors:</strong> When you have constructors with 10+ optional parameters.</li>
+                    <li><strong>Multiple representations:</strong> When code needs to assemble different representations of the same core product (e.g. wooden vs. stone house).</li>
+                    <li><strong>Building Composite trees:</strong> When you need recursive step-by-step construction of hierarchical object graphs.</li>
+                </ul>
+
+                <h3>How to Implement</h3>
+                <ul>
+                    <li>1. Clearly define common construction steps.</li>
+                    <li>2. Declare these steps in the base Builder interface.</li>
+                    <li>3. Implement concrete builder classes and a product retrieval method.</li>
+                    <li>4. (Optional) Create a Director class for predefined build routines.</li>
+                    <li>5. The client associates builder with director and retrieves the product.</li>
+                </ul>
+            </article>
+
+            <!-- RELATIONS WITH OTHER PATTERNS -->
+            <article class="card span-12">
+                <h2>Relations with Other Patterns</h2>
+                <ul>
+                    <li><strong>Factory Method vs. Builder:</strong> Many designs start by using <em>Factory Method</em> (less complicated and more customizable via subclasses) and evolve toward <em>Abstract Factory</em>, <em>Prototype</em>, or <em>Builder</em> (more flexible, but more complicated).</li>
+                    <li><strong>Builder vs. Abstract Factory:</strong> <em>Builder</em> focuses on constructing complex objects step by step. <em>Abstract Factory</em> specializes in creating families of related objects immediately.</li>
+                    <li><strong>Builder &amp; Composite:</strong> You can use <em>Builder</em> when creating complex <em>Composite</em> trees because you can program its construction steps to execute recursively.</li>
+                    <li><strong>Builder &amp; Bridge:</strong> You can combine <em>Builder</em> with <em>Bridge</em>: the director class plays the role of the abstraction, while different builders act as implementations.</li>
+                    <li><strong>Singletons:</strong> <em>Abstract Factories</em>, <em>Builders</em> and <em>Prototypes</em> can all be implemented as <em>Singletons</em>.</li>
+                </ul>
+                <div class="pill-list" aria-label="Related Patterns">
+                    <span class="pill">Creational</span>
+                    <span class="pill">Factory Method</span>
+                    <span class="pill">Abstract Factory</span>
+                    <span class="pill">Prototype</span>
+                    <span class="pill">Composite</span>
+                    <span class="pill">Singleton</span>
+                </div>
+            </article>
+
+            <!-- INTERACTIVE REAL-WORLD DEMO -->
+            <article class="card span-12">
+                <h2>Interactive Real‑World Demo (JS)</h2>
+                <p>Experience the <strong>Builder</strong> and <strong>Director</strong> in action. Build a custom PC step-by-step or pick a Director preset to run a predefined sequence of construction steps.</p>
+                
+                <div class="toolbar" style="margin-bottom: 16px;">
+                    <button class="btn primary" id="presetGaming">Director: Build Gaming Rig</button>
+                    <button class="btn primary" id="presetOffice">Director: Build Office PC</button>
+                    <button class="btn ghost" id="resetPc">Reset Builder</button>
+                </div>
+
+                <div class="toolbar" style="margin-bottom: 16px;">
+                    <button class="btn" id="stepCpu">Step: Set High-End CPU</button>
+                    <button class="btn" id="stepGpu">Step: Set RTX GPU</button>
+                    <button class="btn" id="stepRam">Step: Add 32GB RAM</button>
+                    <button class="btn" id="stepCooling">Step: Add Liquid Cooling</button>
+                    <button class="btn" id="buildBtn">Get Product</button>
+                </div>
+
+                <pre id="demoLog"><code>// Click a Director preset or step buttons to assemble your configuration...
+Current Builder State: Empty
+</code></pre>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2026 Design Patterns Guide. Based on Refactoring Guru &amp; practical architecture patterns.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Link copier
+        document.getElementById('copyLink').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(location.href);
+                const btn = document.getElementById('copyLink');
+                const old = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = old, 1200);
+            } catch { }
+        });
+
+        // Contrast toggle
+        const toggleBtn = document.getElementById('toggleContrast');
+        let high = false;
+        toggleBtn.addEventListener('click', () => {
+            high = !high;
+            document.documentElement.style.setProperty('--bg', high ? '#05070f' : '');
+            document.documentElement.style.setProperty('--card', high ? '#0a0f22' : '');
+            document.documentElement.style.setProperty('--card-2', high ? '#0b1020' : '');
+            document.documentElement.style.setProperty('--text', high ? '#f2f6ff' : '');
+            document.documentElement.style.setProperty('--border', high ? '#243463' : '');
+        });
+
+        // Language Tabs
+        const tabsRoot = document.getElementById('langTabs');
+        const tabs = Array.from(tabsRoot.querySelectorAll('.tab'));
+        const panels = Array.from(tabsRoot.querySelectorAll('.tabpanel'));
+        function activate(id) {
+            tabs.forEach(t => t.dataset.active = (t.dataset.tab === id));
+            panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+        }
+        tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+        activate('java');
+
+        // Interactive Builder & Director Demonstration
+        class ComputerBuilder {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.computer = {
+                    cpu: "Basic Dual-Core CPU",
+                    gpu: "Integrated Graphics",
+                    ram: "8GB DDR4",
+                    cooling: "Standard Air Cooler",
+                    assembledAt: null
+                };
+            }
+
+            setCpu(cpu) {
+                this.computer.cpu = cpu;
+                return this;
+            }
+
+            setGpu(gpu) {
+                this.computer.gpu = gpu;
+                return this;
+            }
+
+            setRam(ram) {
+                this.computer.ram = ram;
+                return this;
+            }
+
+            setCooling(cooling) {
+                this.computer.cooling = cooling;
+                return this;
+            }
+
+            getProduct() {
+                this.computer.assembledAt = new Date().toLocaleTimeString();
+                const product = { ...this.computer };
+                this.reset();
+                return product;
+            }
+        }
+
+        class ComputerDirector {
+            buildGamingRig(builder) {
+                builder.reset();
+                builder.setCpu("Intel Core i9-14900K / Ryzen 9 7950X")
+                       .setGpu("NVIDIA GeForce RTX 4090 24GB")
+                       .setRam("64GB DDR5 6000MHz RGB")
+                       .setCooling("360mm Custom Liquid Loop");
+                return builder.getProduct();
+            }
+
+            buildOfficePc(builder) {
+                builder.reset();
+                builder.setCpu("Intel Core i5-13400")
+                       .setGpu("Integrated UHD Graphics 730")
+                       .setRam("16GB DDR4 3200MHz")
+                       .setCooling("Quiet Stock Air Cooler");
+                return builder.getProduct();
+            }
+        }
+
+        const builder = new ComputerBuilder();
+        const director = new ComputerDirector();
+        const log = document.getElementById('demoLog');
+
+        function renderState(title, obj) {
+            log.textContent = `=== ${title} ===\n` + JSON.stringify(obj, null, 2);
+        }
+
+        document.getElementById('presetGaming').addEventListener('click', () => {
+            const pc = director.buildGamingRig(builder);
+            renderState("Director: Gaming Rig Built", pc);
+        });
+
+        document.getElementById('presetOffice').addEventListener('click', () => {
+            const pc = director.buildOfficePc(builder);
+            renderState("Director: Office PC Built", pc);
+        });
+
+        document.getElementById('resetPc').addEventListener('click', () => {
+            builder.reset();
+            renderState("Builder Reset to Initial State", builder.computer);
+        });
+
+        document.getElementById('stepCpu').addEventListener('click', () => {
+            builder.setCpu("AMD Ryzen 7 7800X3D");
+            renderState("Step Added: CPU Updated", builder.computer);
+        });
+
+        document.getElementById('stepGpu').addEventListener('click', () => {
+            builder.setGpu("NVIDIA GeForce RTX 4070 Ti Super");
+            renderState("Step Added: GPU Updated", builder.computer);
+        });
+
+        document.getElementById('stepRam').addEventListener('click', () => {
+            builder.setRam("32GB Dual-Channel DDR5");
+            renderState("Step Added: RAM Updated", builder.computer);
+        });
+
+        document.getElementById('stepCooling').addEventListener('click', () => {
+            builder.setCooling("280mm AIO Liquid Cooler");
+            renderState("Step Added: Cooling Updated", builder.computer);
+        });
+
+        document.getElementById('buildBtn').addEventListener('click', () => {
+            const finishedPc = builder.getProduct();
+            renderState("Finished Product Retrieved (Builder Auto-Reset)", finishedPc);
+        });
+    </script>
+</body>
+
+</html>
