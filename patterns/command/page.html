@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Command Pattern - A Practical Guide</title>
+    <meta name="description"
+        content="A concise, practical guide to the Command design pattern with examples, structure, undo, and implementation advice." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern - Behavioral</span>
+            <h1 class="title">The Command Pattern</h1>
+            <p class="subtitle">Turn a request into a stand-alone object that contains all information about the request. This lets you pass, queue, delay, log, and undo operations without coupling senders to receivers.</p>
+            <div class="toolbar">
+                <button class="btn">
+                    <a class="clear-styles" href="../../index.html">Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+        </header>
+
+        <section class="grid">
+            <article class="card span-8">
+                <h2>Applicability</h2>
+                <ul>
+                    <li>Parameterize objects with operations by turning a method call into a stand-alone object.</li>
+                    <li>Queue, schedule, log, serialize, or send operations over a network.</li>
+                    <li>Implement reversible operations such as undo and redo.</li>
+                    <li>Share one operation between several interface elements, such as buttons, menus, and shortcuts.</li>
+                </ul>
+                <div class="callout" role="note">
+                    <strong>Key idea:</strong> The sender triggers a command, while the command knows which receiver to call and how to pass the request details.
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Checklist</h2>
+                <ul>
+                    <li>Command interface with execute()</li>
+                    <li>Concrete command stores request data</li>
+                    <li>Receiver contains business logic</li>
+                    <li>Sender holds a command reference</li>
+                    <li>Client wires the object graph</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>Structure Overview</h2>
+                <svg class="diagram" viewBox="0 0 900 220" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Command pattern">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+                    <rect x="20" y="20" width="180" height="70" rx="8" fill="url(#g)" opacity="0.08" stroke="currentColor" />
+                    <text x="110" y="42" text-anchor="middle" font-weight="600">Client</text>
+                    <line x1="20" y1="52" x2="200" y2="52" stroke="currentColor" />
+                    <text x="30" y="72" font-size="12">creates and configures</text>
+
+                    <rect x="260" y="20" width="180" height="70" rx="8" fill="url(#g)" opacity="0.08" stroke="currentColor" />
+                    <text x="350" y="42" text-anchor="middle" font-weight="600">Invoker</text>
+                    <line x1="260" y1="52" x2="440" y2="52" stroke="currentColor" />
+                    <text x="270" y="72" font-size="12">+ command: Command</text>
+
+                    <rect x="500" y="20" width="180" height="70" rx="8" fill="url(#g)" opacity="0.08" stroke="currentColor" />
+                    <text x="590" y="42" text-anchor="middle" font-weight="600">&lt;&lt;interface&gt;&gt;</text>
+                    <text x="590" y="60" text-anchor="middle" font-weight="600">Command</text>
+                    <text x="590" y="78" text-anchor="middle" font-size="12">+ execute()</text>
+
+                    <rect x="260" y="135" width="180" height="65" rx="8" fill="url(#g)" opacity="0.08" stroke="currentColor" />
+                    <text x="350" y="157" text-anchor="middle" font-weight="600">ConcreteCommand</text>
+                    <line x1="260" y1="167" x2="440" y2="167" stroke="currentColor" />
+                    <text x="270" y="187" font-size="12">delegates to receiver</text>
+
+                    <rect x="500" y="135" width="180" height="65" rx="8" fill="url(#g)" opacity="0.08" stroke="currentColor" />
+                    <text x="590" y="157" text-anchor="middle" font-weight="600">Receiver</text>
+                    <line x1="500" y1="167" x2="680" y2="167" stroke="currentColor" />
+                    <text x="510" y="187" font-size="12">performs business logic</text>
+
+                    <line x1="200" y1="55" x2="260" y2="55" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="440" y1="55" x2="500" y2="55" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="350" y1="90" x2="350" y2="135" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="440" y1="167" x2="500" y2="167" stroke="currentColor" marker-end="url(#arrow)" />
+                </svg>
+            </article>
+
+            <article class="card span-12">
+                <h2>Real-World Analogy: A Restaurant Order</h2>
+                <p>A paper order is a command. It contains the meal details, waits in a queue until the chef is ready, and separates the waiter who takes the request from the chef who performs the work.</p>
+                <p>The same separation helps a text editor reuse Copy, Cut, Paste, and Undo operations from toolbar buttons, context menus, and keyboard shortcuts.</p>
+            </article>
+
+            <article class="card span-12">
+                <h2>Undoable Text Editor</h2>
+                <p>Each command can save the editor state before changing it. Commands that change state are added to a history stack, and the latest command can restore its saved state.</p>
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java" data-active="true">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <section class="tabpanel active" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java - Command with Undo</h3>
+                        <pre><code>interface Command {
+    boolean execute();
+    void undo();
+}
+
+class CutCommand implements Command {
+    private final Editor editor;
+    private String backup;
+
+    CutCommand(Editor editor) {
+        this.editor = editor;
+    }
+
+    public boolean execute() {
+        backup = editor.getText();
+        editor.deleteSelection();
+        return true;
+    }
+
+    public void undo() {
+        editor.setText(backup);
+    }
+}
+
+class Button {
+    private final Command command;
+
+    Button(Command command) {
+        this.command = command;
+    }
+
+    void click() {
+        command.execute();
+    }
+}
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# - Command with Receiver</h3>
+                        <pre><code>public interface ICommand
+{
+    bool Execute();
+    void Undo();
+}
+
+public sealed class DeleteCommand : ICommand
+{
+    private readonly Editor _editor;
+    private string _backup = "";
+
+    public DeleteCommand(Editor editor)
+    {
+        _editor = editor;
+    }
+
+    public bool Execute()
+    {
+        _backup = _editor.Text;
+        _editor.DeleteSelection();
+        return true;
+    }
+
+    public void Undo()
+    {
+        _editor.Text = _backup;
+    }
+}
+
+var command = new DeleteCommand(editor);
+var button = new Button(command);
+button.Click();
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript - Command as an Object</h3>
+                        <pre><code>class CutCommand {
+    constructor(editor) {
+        this.editor = editor;
+        this.backup = '';
+    }
+
+    execute() {
+        this.backup = this.editor.text;
+        this.editor.deleteSelection();
+        return true;
+    }
+
+    undo() {
+        this.editor.text = this.backup;
+    }
+}
+
+class Button {
+    constructor(command) {
+        this.command = command;
+    }
+
+    click() {
+        this.command.execute();
+    }
+}
+
+const command = new CutCommand(editor);
+new Button(command).click();
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python - Command History</h3>
+                        <pre><code>class CutCommand:
+    def __init__(self, editor):
+        self.editor = editor
+        self.backup = ""
+
+    def execute(self):
+        self.backup = self.editor.text
+        self.editor.delete_selection()
+        return True
+
+    def undo(self):
+        self.editor.text = self.backup
+
+
+class CommandHistory:
+    def __init__(self):
+        self.history = []
+
+    def push(self, command):
+        self.history.append(command)
+
+    def pop(self):
+        return self.history.pop() if self.history else None
+</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <article class="card span-12">
+                <h2>Implementation Steps</h2>
+                <ol style="margin: 8px 0 0 20px; color: var(--text); opacity: 0.95;">
+                    <li style="margin: 6px 0;">Declare a command interface with a single execution method.</li>
+                    <li style="margin: 6px 0;">Extract requests into concrete commands that store arguments and a receiver reference.</li>
+                    <li style="margin: 6px 0;">Identify senders and give them command fields.</li>
+                    <li style="margin: 6px 0;">Make senders execute commands instead of calling receivers directly.</li>
+                    <li style="margin: 6px 0;">Create receivers, commands, and senders in that order, then associate them.</li>
+                </ol>
+            </article>
+
+            <article class="card span-6">
+                <h2>Benefits</h2>
+                <ul>
+                    <li><strong>Single Responsibility:</strong> Decouples classes that invoke operations from classes that perform them.</li>
+                    <li><strong>Open/Closed Principle:</strong> New commands can be added without changing existing client code.</li>
+                    <li><strong>Undo and Redo:</strong> Commands can store state or implement inverse operations.</li>
+                    <li><strong>Deferred Execution:</strong> Operations can be queued, scheduled, logged, or serialized.</li>
+                    <li><strong>Macro Commands:</strong> Simple commands can be assembled into a complex operation.</li>
+                </ul>
+            </article>
+
+            <article class="card span-6">
+                <h2>Drawbacks</h2>
+                <ul>
+                    <li><strong>More Classes:</strong> A command class is often needed for every request.</li>
+                    <li><strong>Extra Layer:</strong> The code becomes more complicated between senders and receivers.</li>
+                    <li><strong>State Cost:</strong> Undo histories can consume memory when commands store backups.</li>
+                    <li><strong>Inverse Operations:</strong> Reversing some operations can be difficult or impossible.</li>
+                </ul>
+            </article>
+
+            <article class="card span-12">
+                <h2>Relations with Other Patterns</h2>
+                <ul>
+                    <li><strong>Chain of Responsibility:</strong> Passes a request through a chain; Command establishes a connection between a sender and receiver.</li>
+                    <li><strong>Mediator:</strong> Removes direct sender-receiver connections through a mediator; Command packages the request itself.</li>
+                    <li><strong>Memento:</strong> Works with Command to save receiver state for undo operations.</li>
+                    <li><strong>Strategy:</strong> Both parameterize an object with an action, but Command represents an operation that can be queued or logged, while Strategy swaps algorithms.</li>
+                    <li><strong>Prototype:</strong> Can help save copies of commands in command history.</li>
+                </ul>
+                <div class="pill-list" aria-label="Related">
+                    <span class="pill">Memento</span>
+                    <span class="pill">Strategy</span>
+                    <span class="pill">Mediator</span>
+                    <span class="pill">Prototype</span>
+                </div>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2026 Command Pattern Guide. Built as a single HTML file.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
