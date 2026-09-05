@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Adapter Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A concise, practical guide to the Adapter design pattern with examples in Java, C#, JavaScript, and Python." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Structural</span>
+            <h1 class="title">The Adapter Pattern</h1>
+            <p class="subtitle">Convert the interface of a class into another interface clients expect. Adapter lets classes work together that couldn't otherwise due to incompatible interfaces. Below are practical examples, gotchas, and modern alternatives.</p>
+            <div class="toolbar">
+                <button class="btn">
+                    <a class="clear-styles" href="../../index.html">Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+        </header>
+
+        <section class="grid">
+            <article class="card span-8">
+                <h2>Applicability</h2>
+                <ul>
+                    <li>You have an existing class with an incompatible interface that you cannot change (often 3rd-party, legacy, or with lots of existing dependencies).</li>
+                    <li>You want to create a middle-layer class that serves as a translator between your code and a legacy/3rd-party class.</li>
+                    <li>You want to reuse several existing subclasses that lack some common functionality that can't be added to the superclass.</li>
+                </ul>
+                <div class="callout" role="note">
+                    <strong>Note:</strong> The overall complexity increases because you need to introduce new interfaces and classes. Sometimes it's simpler just to change the service class.
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Checklist</h2>
+                <ul>
+                    <li>At least two incompatible interfaces</li>
+                    <li>Service class reference in adapter</li>
+                    <li>Adapter implements client interface</li>
+                    <li>Delegates work to service</li>
+                    <li>Handle format conversion</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>Structure Overview</h2>
+                <svg class="diagram" viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Adapter pattern">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="20" y="20" width="200" height="60" rx="8" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" stroke-dasharray="4,4" />
+                    <text x="120" y="40" text-anchor="middle" font-weight="600">&lt;&lt;interface&gt;&gt;</text>
+                    <text x="120" y="58" text-anchor="middle" font-weight="600">ClientInterface</text>
+                    <text x="120" y="75" text-anchor="middle" font-size="12">+ request()</text>
+
+                    <rect x="280" y="20" width="200" height="100" rx="8" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="380" y="40" text-anchor="middle" font-weight="600">Adapter</text>
+                    <line x1="280" y1="52" x2="480" y2="52" stroke="currentColor" />
+                    <text x="290" y="70" font-size="12">- service: Service</text>
+                    <line x1="280" y1="82" x2="480" y2="82" stroke="currentColor" />
+                    <text x="290" y="100" font-size="12">+ request()</text>
+                    <text x="290" y="115" font-size="12" opacity="0.7">translates to specific_request()</text>
+
+                    <rect x="540" y="20" width="200" height="80" rx="8" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="640" y="40" text-anchor="middle" font-weight="600">Service</text>
+                    <line x1="540" y1="52" x2="740" y2="52" stroke="currentColor" />
+                    <line x1="540" y1="52" x2="740" y2="52" stroke="currentColor" />
+                    <text x="550" y="70" font-size="12">+ specific_request()</text>
+                    <text x="550" y="85" font-size="12" opacity="0.7">(incompatible interface)</text>
+
+                    <rect x="20" y="120" width="240" height="60" rx="8" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="140" y="138" text-anchor="middle" font-weight="600">Client</text>
+                    <line x1="20" y1="150" x2="260" y2="150" stroke="currentColor" />
+                    <text x="30" y="168" font-size="12">+ work(target: ClientInterface)</text>
+
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                        <marker id="arrow-dashed" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+                    <line x1="140" y1="120" x2="350" y2="120" stroke="currentColor" marker-end="url(#arrow)" />
+                    <text x="230" y="112" text-anchor="middle" font-size="11">uses</text>
+                    <path d="M 380 20 L 380 0 L 230 0 L 230 20" fill="none" stroke="currentColor" stroke-dasharray="2,2"
+                        marker-end="url(#arrow)" />
+                    <text x="290" y="12" text-anchor="middle" font-size="11">implements</text>
+                    <line x1="480" y1="70" x2="540" y2="70" stroke="currentColor" marker-end="url(#arrow)" />
+                    <text x="505" y="62" text-anchor="middle" font-size="11">wraps</text>
+                </svg>
+            </article>
+
+            <article class="card span-12">
+                <h2>Practical Example: Power Plug Adapter</h2>
+                <p>A real‑world analogy: A traveler needs an adapter to use their US power plug in a European socket.
+                    The adapter has an American outlet and a European plug, translating between the two standards.</p>
+
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java" data-active="true">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <section class="tabpanel active" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java — Object Adapter (Composition)</h3>
+                        <pre><code>// Target interface (expected by client)
+interface StandardPlug {
+    void powerUp();
+}
+
+
+
+StandardPlug adapter = new PlugAdapter(new EuropeanSocket());
+adapter.powerUp();  // "Powered via EU socket"
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# — Object Adapter</h3>
+                        <pre><code>// Target interface
+public interface IStandardPlug
+{
+    void PowerUp();
+}
+
+
+public class EuropeanSocket
+{
+    public void ConnectEU()
+    {
+        Console.WriteLine("Powered via EU socket");
+    }
+}
+
+public class PlugAdapter : IStandardPlug
+{
+    private readonly EuropeanSocket _socket;
+
+    public PlugAdapter(EuropeanSocket socket)
+    {
+        _socket = socket;
+    }
+
+    public void PowerUp()
+    {
+        _socket.ConnectEU();
+    }
+}
+
+
+IStandardPlug adapter = new PlugAdapter(new EuropeanSocket());
+adapter.PowerUp();
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript — Object Adapter</h3>
+                        <pre><code>// Target interface (duck typing)
+class StandardPlug {
+    powerUp() {
+        throw new Error('Must be implemented');
+    }
+}
+
+// Existing service
+class EuropeanSocket {
+    connectEU() {
+        console.log('Powered via EU socket');
+    }
+}
+
+// Adapter: wraps EuropeanSocket
+class PlugAdapter extends StandardPlug {
+    constructor(socket) {
+        super();
+        this.socket = socket;
+    }
+
+    powerUp() {
+        // Translate to actual service method
+        this.socket.connectEU();
+    }
+}
+
+// Usage
+const adapter = new PlugAdapter(new EuropeanSocket());
+adapter.powerUp();  // "Powered via EU socket"
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python — Object Adapter</h3>
+                        <pre><code>from abc import ABC, abstractmethod
+
+# Target interface
+class StandardPlug(ABC):
+    @abstractmethod
+    def power_up(self):
+        pass
+
+# Existing service (incompatible)
+class EuropeanSocket:
+    def connect_eu(self):
+        print("Powered via EU socket")
+
+# Adapter: implements target, wraps service
+class PlugAdapter(StandardPlug):
+    def __init__(self, socket: EuropeanSocket):
+        self._socket = socket
+
+    def power_up(self):
+        # Translate to actual service
+        self._socket.connect_eu()
+
+
+adapter = PlugAdapter(EuropeanSocket())
+adapter.power_up()  # "Powered via EU socket"
+</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <article class="card span-12">
+                <h2>Real‑World Scenario: Analytics Integration</h2>
+                <p>You're building a stock market monitoring app that downloads XML data from multiple sources.
+                    You decide to integrate a 3rd-party analytics library, but it only accepts JSON.
+                    The solution: create an XML‑to‑JSON adapter.</p>
+                <pre><code>// Existing app works with XML
+class StockDataFeed {
+    String getStockData() { return "&lt;stock&gt;...&lt;/stock&gt;"; }
+}
+
+interface AnalyticsService {
+    void analyze(String jsonData);
+}
+
+
+class XMLtoJSONAdapter implements AnalyticsService {
+    private StockDataFeed feed;
+    public XMLtoJSONAdapter(StockDataFeed feed) { this.feed = feed; }
+
+    @Override
+    public void analyze(String xmlData) {
+        String json = convertXMLtoJSON(feed.getStockData());
+        // Now pass JSON to actual analytics (if we had it)
+    }
+
+    private String convertXMLtoJSON(String xml) {
+        // conversion logic
+        return "{ \"stocks\": [...] }";
+    }
+}
+</code></pre>
+            </article>
+
+            <article class="card span-6">
+                <h2>✅ Benefits</h2>
+                <ul>
+                    <li><strong>Single Responsibility:</strong> Interface conversion code is separated from business logic.</li>
+                    <li><strong>Open/Closed Principle:</strong> Add new adapters without modifying client code.</li>
+                    <li><strong>Loose Coupling:</strong> Clients depend on abstractions, not concrete incompatible classes.</li>
+                </ul>
+            </article>
+
+            <article class="card span-6">
+                <h2>⚠️ Drawbacks</h2>
+                <ul>
+                    <li><strong>Overall Complexity:</strong> Introduces new interfaces and classes; sometimes simpler to just modify the service.</li>
+                    <li><strong>Performance Overhead:</strong> Extra layer of indirection (usually negligible).</li>
+                    <li><strong>Harder to Trace:</strong> Deeper call stack makes debugging less transparent.</li>
+                </ul>
+            </article>
+
+            <article class="card span-12">
+                <h2>Implementation Steps</h2>
+                <ol style="margin: 8px 0 0 20px; color: var(--text); opacity: 0.95;">
+                    <li style="margin: 6px 0;">Make sure you have at least two classes with incompatible interfaces (a useful service class you can't change, and one or several client classes that would benefit from it).</li>
+                    <li style="margin: 6px 0;">Declare the client interface and describe how clients communicate with the service.</li>
+                    <li style="margin: 6px 0;">Create the adapter class and make it follow the client interface. Leave methods empty initially.</li>
+                    <li style="margin: 6px 0;">Add a field to store a reference to the service object (usually initialized via constructor).</li>
+                    <li style="margin: 6px 0;">Implement all methods of the client interface, delegating real work to the service and handling format/interface conversion.</li>
+                    <li style="margin: 6px 0;">Clients should use the adapter via the client interface, allowing you to change or extend adapters without breaking client code.</li>
+                </ol>
+            </article>
+
+            <article class="card span-12">
+                <h2>Relations with Other Patterns</h2>
+                <ul>
+                    <li><strong>Bridge:</strong> Usually designed up-front; Adapter is commonly used with an existing app to make incompatible classes work together.</li>
+                    <li><strong>Decorator:</strong> Provides a different interface (Adapter) vs. extended same interface (Decorator). Decorator supports recursive composition; Adapter doesn't.</li>
+                    <li><strong>Proxy:</strong> With Proxy, the interface stays the same. With Adapter, you access via a different interface.</li>
+                    <li><strong>Facade:</strong> Defines a new interface for existing objects; Adapter tries to make existing interface usable. Facade works with subsystems; Adapter wraps one object.</li>
+                </ul>
+                <div class="pill-list" aria-label="Related">
+                    <span class="pill">Bridge</span>
+                    <span class="pill">Decorator</span>
+                    <span class="pill">Facade</span>
+                    <span class="pill">Proxy</span>
+                </div>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2025 Adapter Pattern Guide. Built as a single HTML file. Toggle high‑contrast for better projection on a beamer.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
