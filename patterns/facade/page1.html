@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Facade Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A concise, practical guide to the Facade design pattern with examples in Java, C#, JavaScript, and Python." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Structural</span>
+            <h1 class="title">The Facade Pattern</h1>
+            <p class="subtitle">Provide a simple, unified interface to a complex subsystem. Below
+                are practical examples, gotchas, and modern alternatives.</p>
+            <div class="toolbar">
+                <button class="btn">
+                   <a class="btn clear-styles" href="../../index.html">Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+
+        </header>
+
+        <section class="grid">
+            <article class="card span-8">
+                <h2>When to Use</h2>
+                <ul>
+                    <li>You have a complex subsystem with many classes or APIs.</li>
+                    <li>Clients should not need to understand the subsystem's internal workflow.</li>
+                    <li>You want to reduce coupling between clients and implementation details.</li>
+                    <li>You need a simple entry point for common operations.</li>
+                </ul>
+                <div class="callout" role="note">
+                    <strong>Warning:</strong> Avoid turning the facade into a "god object". A facade should
+                    simplify access to a subsystem, not contain all of its business logic.
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Checklist</h2>
+                <ul>
+                    <li>Identify a complex subsystem</li>
+                    <li>Create a simple public interface</li>
+                    <li>Delegate work to subsystem classes</li>
+                    <li>Keep subsystem classes independent</li>
+                    <li>Expose only common operations</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>UML Snapshot</h2>
+                <svg class="diagram" viewBox="0 0 820 160" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Facade">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                    </defs>
+
+                    <rect x="20" y="20" width="300" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <rect x="20" y="20" width="300" height="120" rx="12" fill="none" stroke="currentColor" />
+                    <text x="170" y="42" text-anchor="middle" font-weight="600">Facade</text>
+                    <line x1="20" y1="55" x2="320" y2="55" stroke="currentColor" />
+                    <text x="30" y="75">- subsystemA: SubsystemA</text>
+                    <text x="30" y="95">- subsystemB: SubsystemB</text>
+                    <line x1="20" y1="110" x2="320" y2="110" stroke="currentColor" />
+                    <text x="30" y="130">+ operation(): void</text>
+
+                    <rect x="420" y="20" width="380" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <rect x="420" y="20" width="380" height="120" rx="12" fill="none" stroke="currentColor" />
+                    <text x="610" y="42" text-anchor="middle" font-weight="600">Client</text>
+                    <line x1="420" y1="55" x2="800" y2="55" stroke="currentColor" />
+                    <text x="430" y="75">+ use(f: Facade)</text>
+                    <line x1="420" y1="110" x2="800" y2="110" stroke="currentColor" />
+
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+
+                    <line x1="420" y1="80" x2="320" y2="80" stroke="currentColor" marker-end="url(#arrow)" />
+                </svg>
+            </article>
+
+            <article class="card span-12">
+                <h2>Idiomatic Implementations</h2>
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <section class="tabpanel" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java — Simple Facade over a Complex Subsystem</h3>
+                        <pre><code>class CPU {
+  void freeze() {
+    System.out.println("CPU frozen");
+  }
+
+  void jump(long position) {
+    System.out.println("CPU jumps to " + position);
+  }
+
+  void execute() {
+    System.out.println("CPU executing");
+  }
+}
+
+class Memory {
+  void load(long position, byte[] data) {
+    System.out.println("Memory loaded");
+  }
+}
+
+class HardDrive {
+  byte[] read(long lba, int size) {
+    System.out.println("Reading from hard drive");
+    return new byte[size];
+  }
+}
+
+public class ComputerFacade {
+  private final CPU cpu;
+  private final Memory memory;
+  private final HardDrive hardDrive;
+
+  public ComputerFacade() {
+    cpu = new CPU();
+    memory = new Memory();
+    hardDrive = new HardDrive();
+  }
+
+  public void start() {
+    cpu.freeze();
+
+    byte[] bootData = hardDrive.read(0, 1024);
+    memory.load(0, bootData);
+
+    cpu.jump(0);
+    cpu.execute();
+  }
+}
+</code></pre>
+                        <p class="muted">The client only needs to call <code class="inline">start()</code>.
+                            The facade hides the interaction between CPU, memory, and hard drive.</p>
+                        <pre><code>ComputerFacade computer = new ComputerFacade();
+computer.start();
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# — Facade for an Order Processing System</h3>
+                        <pre><code>class Inventory {
+  public bool CheckStock(string product) {
+    return true;
+  }
+}
+
+class Payment {
+  public bool Charge(string card, decimal amount) {
+    return true;
+  }
+}
+
+class Shipping {
+  public void Ship(string product, string address) {
+    Console.WriteLine("Shipping " + product);
+  }
+}
+
+public sealed class OrderFacade {
+  private readonly Inventory inventory = new Inventory();
+  private readonly Payment payment = new Payment();
+  private readonly Shipping shipping = new Shipping();
+
+  public bool PlaceOrder(
+      string product,
+      string card,
+      decimal amount,
+      string address) {
+
+    if (!inventory.CheckStock(product))
+      return false;
+
+    if (!payment.Charge(card, amount))
+      return false;
+
+    shipping.Ship(product, address);
+
+    return true;
+  }
+}
+</code></pre>
+                        <p class="muted">The facade coordinates several subsystem operations and exposes one
+                            simple method to the client.</p>
+                        <pre><code>var orders = new OrderFacade();
+
+bool success = orders.PlaceOrder(
+    "Laptop",
+    "4111-1111-1111-1111",
+    999.99m,
+    "Main Street"
+);
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript — Facade over Multiple Services</h3>
+                        <pre><code>class AuthService {
+  login(username, password) {
+    console.log("Authenticating user...");
+    return true;
+  }
+}
+
+class UserService {
+  loadProfile(username) {
+    console.log("Loading user profile...");
+    return {
+      username,
+      role: "admin"
+    };
+  }
+}
+
+class NotificationService {
+  sendWelcome(username) {
+    console.log("Sending welcome notification...");
+  }
+}
+
+class AppFacade {
+  constructor() {
+    this.auth = new AuthService();
+    this.users = new UserService();
+    this.notifications = new NotificationService();
+  }
+
+  login(username, password) {
+    if (!this.auth.login(username, password)) {
+      return null;
+    }
+
+    const profile = this.users.loadProfile(username);
+
+    this.notifications.sendWelcome(username);
+
+    return profile;
+  }
+}
+</code></pre>
+                        <p class="muted">Instead of interacting with several services directly, the client
+                            uses one high-level facade API.</p>
+                        <pre><code>const app = new AppFacade();
+
+const profile = app.login("alice", "secret");
+
+console.log(profile);
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python — Facade for a Video Conversion System</h3>
+                        <pre><code>class VideoFile:
+  def __init__(self, filename):
+    self.filename = filename
+
+
+class Codec:
+  def decode(self, file):
+    print("Decoding", file.filename)
+
+
+class AudioMixer:
+  def fix(self, file):
+    print("Fixing audio")
+
+
+class VideoEncoder:
+  def encode(self, file):
+    print("Encoding video")
+
+
+class VideoConverter:
+  def __init__(self):
+    self.codec = Codec()
+    self.mixer = AudioMixer()
+    self.encoder = VideoEncoder()
+
+  def convert(self, filename):
+    video = VideoFile(filename)
+
+    self.codec.decode(video)
+    self.mixer.fix(video)
+    self.encoder.encode(video)
+
+    print("Conversion complete")
+</code></pre>
+                        <pre><code>converter = VideoConverter()
+converter.convert("movie.mp4")
+</code></pre>
+                        <p class="muted">The client only needs to know about the facade and does not need to
+                            understand the individual conversion steps.</p>
+                    </section>
+                </div>
+            </article>
+
+            <article class="card span-6">
+                <h2>Pros & Cons</h2>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <h3>✅ Benefits</h3>
+                        <ul>
+                            <li>Simplifies a complex API</li>
+                            <li>Reduces coupling between clients and subsystems</li>
+                            <li>Centralizes common workflows</li>
+                            <li>Improves readability and usability</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>⚠️ Pitfalls</h3>
+                        <ul>
+                            <li>Facade can become too large</li>
+                            <li>May hide useful subsystem functionality</li>
+                            <li>Can become a maintenance bottleneck</li>
+                            <li>Does not remove the underlying complexity</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card span-6">
+                <h2>Alternatives</h2>
+                <ul>
+                    <li><strong>Adapter</strong>: changes an existing interface so incompatible classes can work
+                        together.</li>
+                    <li><strong>Dependency Injection</strong>: provides dependencies explicitly instead of hiding
+                        them.</li>
+                    <li><strong>Service Layer</strong>: encapsulates application-level workflows and operations.</li>
+                    <li><strong>Direct subsystem access</strong>: useful when the underlying API is already simple.</li>
+                </ul>
+                <div class="pill-list" aria-label="Related">
+                    <span class="pill">Adapter</span>
+                    <span class="pill">Mediator</span>
+                    <span class="pill">Service Layer</span>
+                    <span class="pill">Dependency Injection</span>
+                </div>
+            </article>
+
+            <article class="card span-8">
+                <h2>Real-World Demo (JS)</h2>
+                <p>This page uses a <em>facade</em> to hide a complex video-processing subsystem. The
+                    <code class="inline">facade</code> coordinates multiple services, providing one simple interface
+                    for the client.
+                </p>
+                <div class="toolbar">
+                    <button class="btn" id="incA">Widget A: Convert</button>
+                    <button class="btn" id="incB">Widget B: Convert</button>
+                    <button class="btn ghost" id="reset">Reset</button>
+                </div>
+                <pre id="log"><code>Ready.
+</code></pre>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Testing Tips</h2>
+                <ul>
+                    <li>Test the facade workflow independently.</li>
+                    <li>Mock subsystem dependencies when necessary.</li>
+                    <li>Keep business logic out of the facade when possible.</li>
+                    <li>Test subsystem classes separately.</li>
+                </ul>
+                <h3>Anti-Patterns</h3>
+                <ul>
+                    <li>Putting all application logic into the facade.</li>
+                    <li>Creating a facade for an already-simple API.</li>
+                    <li>Making one facade responsible for unrelated subsystems.</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>Common Gotchas & Hardening</h2>
+                <ul>
+                    <li><strong>Too much responsibility:</strong> a facade should coordinate subsystem operations
+                        rather than become the application's main business-logic container.</li>
+                    <li><strong>Hidden functionality:</strong> don't force every client through the facade if advanced
+                        clients genuinely need direct subsystem access.</li>
+                    <li><strong>Breaking changes:</strong> keep the facade's public API stable because many clients
+                        may depend on it.</li>
+                    <li><strong>Large facades:</strong> if the facade grows too large, split it into smaller facades
+                        based on responsibilities.</li>
+                    <li><strong>Not a Singleton:</strong> a facade does not need to have only one instance. Its purpose
+                        is interface simplification, not instance control.</li>
+                </ul>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2025 Facade Pattern Guide. Built as a single HTML file. Toggle high-contrast for better projection
+                on a beamer.</p>
+        </footer>
+    </div>
+
+   <script src="./js/script.js"></script>
+</body>
+
+</html>
