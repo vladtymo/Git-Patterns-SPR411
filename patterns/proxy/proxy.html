@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Proxy Pattern — A Practical Guide</title>
+    <meta name="description"
+        content="A practical guide to the Proxy design pattern with examples in Java, C#, JavaScript, and Python." />
+    <link rel="stylesheet" href="proxy.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <span class="badge" aria-label="Design Pattern">Design Pattern • Structural</span>
+            <h1 class="title">The Proxy pattern</h1>
+            <p class="subtitle">Control access to objects through a substitute that can add checks, lazy loading, caching,
+                or logging without changing the original object.</p>
+            <div class="toolbar">
+                <button class="btn">
+                    <a class="clear-styles" href="../../index.html">Back Home</a>
+                </button>
+                <button id="copyLink" class="btn" aria-label="Copy shareable link">Copy Link</button>
+                <button id="toggleContrast" class="btn ghost" aria-label="Toggle high contrast">Toggle Contrast</button>
+            </div>
+
+        </header>
+
+        <article class="card span-12 proxy-story">
+            <h2>Real document example</h2>
+            <p>Think of a document service as the real subject. A <strong>document proxy</strong> controls access to that service,
+                checking permissions before forwarding requests to the real object.</p>
+            <p>This is exactly how the Proxy pattern works: it provides the same interface as the real subject while
+                controlling when and how the underlying object is accessed.</p>
+        </article>
+
+        <section class="grid">
+            <article class="card span-8">
+                <h2>When to Use</h2>
+                <ul>
+                    <li>You need to add responsibilities to an object dynamically at runtime.</li>
+                    <li>You want to extend behavior without changing the original class or creating a large inheritance
+                        tree.</li>
+                    <li>You need transparent composition such as logging, caching, validation, or metrics.</li>
+                </ul>
+                <div class="callout" role="note">
+                    <strong>Rule of thumb:</strong> Use the Proxy pattern when access to an object needs control,
+                    protection, delayed creation, or additional monitoring.
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Checklist</h2>
+                <ul>
+                    <li>Shared <span class="kbd">Component</span> interface or base class</li>
+                    <li>Concrete implementation with core behavior</li>
+                    <li>Proxy with the same interface as the real subject</li>
+                    <li>Access checks or behavior around delegated calls</li>
+                    <li>Delegation, not inheritance, as the access mechanism</li>
+                </ul>
+            </aside>
+
+            <article class="card span-12">
+                <h2>Proxy UML Snapshot</h2>
+                <svg class="diagram" viewBox="0 0 860 180" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="UML diagram of Proxy">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#55e6c1" stop-opacity="0.7" />
+                        </linearGradient>
+                    </defs>
+
+                    <rect x="20" y="20" width="220" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="130" y="42" text-anchor="middle" font-weight="600">Subject</text>
+                    <line x1="20" y1="55" x2="240" y2="55" stroke="currentColor" />
+                    <text x="30" y="78">+ request(): void</text>
+                    <line x1="20" y1="100" x2="240" y2="100" stroke="currentColor" />
+
+                    <rect x="310" y="20" width="220" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="420" y="42" text-anchor="middle" font-weight="600">RealSubject</text>
+                    <line x1="310" y1="55" x2="530" y2="55" stroke="currentColor" />
+                    <text x="320" y="78">+ request(): void</text>
+                    <line x1="310" y1="100" x2="530" y2="100" stroke="currentColor" />
+
+                    <rect x="600" y="20" width="220" height="120" rx="12" fill="url(#g)" opacity="0.08"
+                        stroke="currentColor" />
+                    <text x="710" y="42" text-anchor="middle" font-weight="600">Proxy</text>
+                    <line x1="600" y1="55" x2="820" y2="55" stroke="currentColor" />
+                    <text x="610" y="78">- realSubject: Subject</text>
+                    <text x="610" y="98">+ request(): void</text>
+                    <line x1="600" y1="110" x2="820" y2="110" stroke="currentColor" />
+
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" />
+                        </marker>
+                    </defs>
+                    <line x1="240" y1="80" x2="310" y2="80" stroke="currentColor" marker-end="url(#arrow)" />
+                    <line x1="600" y1="80" x2="530" y2="80" stroke="currentColor" marker-end="url(#arrow)" />
+                </svg>
+            </article>
+
+            <article class="card span-12">
+                <h2>Idiomatic Implementations</h2>
+                <div class="tabs" id="langTabs">
+                    <div class="tablist" role="tablist" aria-label="Languages">
+                        <button class="tab" role="tab" aria-controls="tab-java" data-tab="java">Java</button>
+                        <button class="tab" role="tab" aria-controls="tab-csharp" data-tab="csharp">C#</button>
+                        <button class="tab" role="tab" aria-controls="tab-js" data-tab="js">JavaScript</button>
+                        <button class="tab" role="tab" aria-controls="tab-py" data-tab="py">Python</button>
+                    </div>
+
+                    <section class="tabpanel" id="tab-java" role="tabpanel" aria-labelledby="java">
+                        <h3>Java — Subject interface + proxy</h3>
+                                                <pre><code>interface DocumentService {
+    String fetch(String path);
+}
+
+class RealDocumentService implements DocumentService {
+    public String fetch(String path) { return "Contents of " + path; }
+}
+
+class DocumentProxy implements DocumentService {
+    private DocumentService service;
+    private boolean authorized;
+    DocumentProxy(DocumentService service, boolean authorized) {
+        this.service = service;
+        this.authorized = authorized;
+    }
+
+    public String fetch(String path) {
+        if (!authorized) throw new SecurityException("Access denied");
+        return service.fetch(path);
+    }
+}
+
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-csharp" role="tabpanel" aria-labelledby="csharp">
+                        <h3>C# — Virtual methods with composition</h3>
+                                                <pre><code>public interface IDocumentService {
+    string Fetch(string path);
+}
+
+public class RealDocumentService : IDocumentService {
+    public string Fetch(string path) =&gt; File.ReadAllText(path);
+}
+
+public class DocumentProxy : IDocumentService {
+    private readonly IDocumentService service;
+    public DocumentProxy(IDocumentService service) => this.service = service;
+    public string Fetch(string path) {
+        if (!UserCanRead(path)) throw new UnauthorizedAccessException();
+        return service.Fetch(path);
+    }
+}
+
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-js" role="tabpanel" aria-labelledby="js">
+                        <h3>JavaScript — Wrap an object and delegate calls</h3>
+                                                <pre><code>class RealDocumentService {
+    fetch(path) { return `Contents of ${path}`; }
+}
+
+class DocumentProxy {
+    constructor(service, canRead) {
+        this.service = service;
+        this.canRead = canRead;
+    }
+    fetch(path) {
+        if (!this.canRead) throw new Error("Access denied");
+        return this.service.fetch(path);
+    }
+}
+
+const documents = new DocumentProxy(new RealDocumentService(), true);
+console.log(documents.fetch("report.txt"));
+</code></pre>
+                    </section>
+
+                    <section class="tabpanel" id="tab-py" role="tabpanel" aria-labelledby="py">
+                        <h3>Python — Functional-style wrappers</h3>
+                        <pre><code>class RealDocumentService:
+    def fetch(self, path):
+        with open(path) as document:
+            return document.read()
+
+class DocumentProxy:
+    def __init__(self, service, can_read):
+        self._service = service
+        self._can_read = can_read
+    def fetch(self, path):
+        if not self._can_read:
+            raise PermissionError("Access denied")
+        return self._service.fetch(path)
+
+documents = DocumentProxy(RealDocumentService(), True)
+print(documents.fetch("report.txt"))
+</code></pre>
+                    </section>
+                </div>
+            </article>
+
+            <article class="card span-12 placeholder-block">
+                <div class="placeholder-actions" aria-label="Future actions">
+                    <button class="btn placeholder-button" aria-label="Placeholder button one"></button>
+                    <button class="btn placeholder-button" aria-label="Placeholder button two"></button>
+                    <button class="btn placeholder-button" aria-label="Placeholder button three"></button>
+                </div>
+            </article>
+
+            <aside class="card span-4">
+                <h2>Testing Tips</h2>
+                <ul>
+                    <li>Assert the final behavior of the wrapped object, not the wrapper internals.</li>
+                    <li>Keep proxies focused on access control or delegation.</li>
+                    <li>Test both proxy behavior and calls forwarded to the real subject.</li>
+                </ul>
+                <h3>Anti‑Patterns</h3>
+                <ul>
+                    <li>Proxying a class without a common interface.</li>
+                    <li>Mutating shared state inside multiple wrappers.</li>
+                    <li>Using proxies to hide unrelated business logic.</li>
+                </ul>
+            </aside>
+
+            <article class="card span-8">
+                <h2>Common Gotchas & Hardening</h2>
+                <ul>
+                    <li><strong>Keep the protocol consistent:</strong> every proxy must expose the same interface as the
+                        real subject it represents.</li>
+                    <li><strong>Access matters:</strong> authorization and validation should happen before delegation.</li>
+                    <li><strong>Beware of side effects:</strong> proxies can add expensive logging or validation work.</li>
+                    <li><strong>Prefer delegation over deep inheritance:</strong> this keeps access responsibilities isolated
+                        and easier to test.</li>
+                </ul>
+            </article>
+
+            <article class="card span-12 proxy-guidance">
+                <h2>When and Why to Use a Proxy</h2>
+                <p>Use a proxy when an object needs controlled access without changing the real subject behind it.
+                    The proxy keeps the same interface, so clients can work with it as if they were calling the original object.</p>
+                <div class="guidance-grid">
+                    <div>
+                        <h3>Protect access</h3>
+                        <p>Check permissions, validate requests, or restrict sensitive operations before delegation.</p>
+                    </div>
+                    <div>
+                        <h3>Delay expensive work</h3>
+                        <p>Create or load the real object only when a client actually needs it.</p>
+                    </div>
+                    <div>
+                        <h3>Observe and optimize</h3>
+                        <p>Add logging, caching, metrics, or remote-call handling in one controlled boundary.</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <footer>
+            <p>© 2026 Proxy Pattern Guide. Built as a single HTML file. Toggle high‑contrast for better projection
+                on a beamer.</p>
+        </footer>
+    </div>
+
+    <script src="proxy.js"></script>
+</body>
+
+</html>

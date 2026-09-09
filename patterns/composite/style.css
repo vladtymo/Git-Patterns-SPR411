@@ -39,6 +39,38 @@ body {
     opacity: 0.9;
 }
 
+.page-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.page-links a {
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    color: white;
+    padding: 0.65rem 1.25rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.page-links a:hover,
+.page-links a:focus-visible {
+    background-color: white;
+    color: var(--primary-color);
+}
+
+.reference-link {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color) !important;
+}
+
+.reference-link:hover,
+.reference-link:focus-visible {
+    border-color: white !important;
+}
+
 /* Головний контейнер */
 .container {
     max-width: 800px;
@@ -97,4 +129,13 @@ footer {
     background-color: var(--primary-color);
     color: white;
     margin-top: 4rem;
+}
+
+@media (max-width: 480px) {
+    .page-links {
+        flex-direction: column;
+        align-items: stretch;
+        margin: 1.5rem auto 0;
+        max-width: 220px;
+    }
 }
